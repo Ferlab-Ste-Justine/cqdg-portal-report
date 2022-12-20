@@ -4,24 +4,24 @@ const biospecimens: SheetConfig = {
     sheetName: 'Biospecimens',
     root: 'files.biospecimens',
     columns: [
-        { field: 'participant_id' },
-        { field: 'submitter_participant_id' },
+        { field: 'participant.participant_id', header: 'Participant ID' },
+        { field: 'participant.submitter_participant_id', header: 'Submitter Participant ID' },
         { field: 'study.name', header: 'Study Name' },
         { field: 'study.study_code', header: 'Study Code' },
-        { field: 'files.biospecimens.sample_id', header: 'Sample ID' },
-        { field: 'files.biospecimens.submitter_sample_id', header: 'Submitter Sample ID' },
-        { field: 'files.biospecimens.sample_type', header: 'Sample Type' },
-        { field: 'files.biospecimens.fhir_id', header: 'Biospecimen ID' },
-        { field: 'files.biospecimens.submitter_biospecimen_id', header: 'Submitter Biospecimen ID' },
-        { field: 'files.biospecimens.biospecimen_tissue_source', header: 'Biospecimen Tissue Source' },
+        { field: 'sample_id', header: 'Sample ID' },
+        { field: 'submitter_sample_id', header: 'Submitter Sample ID' },
+        { field: 'sample_type', header: 'Sample Type' },
+        { field: 'biospecimen_id', header: 'Biospecimen ID' },
+        { field: 'submitter_biospecimen_id', header: 'Submitter Biospecimen ID' },
+        { field: 'biospecimen_tissue_source', header: 'Biospecimen Tissue Source' },
         {
-            field: 'files.biospecimens.age_biospecimen_collection',
+            field: 'age_biospecimen_collection',
             header: 'Age at Biospecimen Collection (days)',
         },
     ],
     sort: [
         {
-            'files.biospecimens.sample_id': {
+            sample_id: {
                 order: 'asc',
             },
         },
@@ -29,8 +29,8 @@ const biospecimens: SheetConfig = {
 };
 
 const queryConfigs: QueryConfig = {
-    indexName: 'participant',
-    alias: 'participant_centric',
+    indexName: 'biospecimen',
+    alias: 'biospecimen_centric',
 };
 
 const sheetConfigs: SheetConfig[] = [biospecimens];
