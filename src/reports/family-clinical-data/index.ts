@@ -6,7 +6,7 @@ import { normalizeConfigs } from '../../utils/configUtils';
 
 import generateFamilySqon from './generateFamilySqon';
 import { reportGenerationErrorHandler } from '../../errors';
-import { PROJECT } from '../../env';
+import {ES_PWD, ES_USER, PROJECT} from '../../env';
 
 const clinicalDataReport = (esHost: string) => async (req: Request, res: Response) => {
     console.time('family-clinical-data');
@@ -18,7 +18,10 @@ const clinicalDataReport = (esHost: string) => async (req: Request, res: Respons
     let es = null;
     try {
         // prepare the ES client
-        es = new Client({ node: esHost });
+        es =
+            ES_PWD && ES_USER
+                ? new Client({ node: esHost, auth: { password: ES_PWD, username: ES_USER } })
+                : new Client({ node: esHost });
 
         // decorate the configs with default values, values from arranger's project, etc...
         const normalizedConfigs = await normalizeConfigs(es, projectId, configCqdg);
