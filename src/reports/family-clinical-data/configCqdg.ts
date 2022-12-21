@@ -4,8 +4,8 @@ const participants: SheetConfig = {
     sheetName: 'Participants',
     root: null,
     columns: [
-        { field: 'participant_id' },
-        { field: 'submitter_participant_id' },
+        { field: 'participant_id', header: 'Participant ID' },
+        { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
         { field: 'familyRelationships.family_id', header: 'Family ID' },
         { field: 'familyRelationships.submitter_family_id', header: 'Submitter Family ID' },
         { field: 'familyRelationships.relationship_to_proband', header: 'Relationship to Proband' },
@@ -36,8 +36,8 @@ const phenotypes: SheetConfig = {
     sheetName: 'Phenotypes',
     root: 'phenotype',
     columns: [
-        { field: 'participant_id' },
-        { field: 'submitter_participant_id' },
+        { field: 'participant_id', header: 'Participant ID' },
+        { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
         { field: 'familyRelationships.family_id', header: 'Family ID' },
         { field: 'familyRelationships.submitter_family_id', header: 'Submitter Family ID' },
         { field: 'familyRelationships.relationship_to_proband', header: 'Relationship to Proband' },
@@ -82,7 +82,7 @@ const phenotypes: SheetConfig = {
         },
         {
             field: 'observed_phenotype_tagged.age_at_event',
-            header: 'Age at Phenotype (days)',
+            header: 'Age at Phenotype (Days)',
         },
     ],
     sort: [
@@ -113,15 +113,15 @@ const diagnoses: SheetConfig = {
     sheetName: 'Diagnoses',
     root: 'diagnosis',
     columns: [
-        { field: 'participant_id' },
-        { field: 'submitter_participant_id' },
+        { field: 'participant_id', header: 'Participant ID' },
+        { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
         { field: 'familyRelationships.family_id', header: 'Family ID' },
         { field: 'familyRelationships.submitter_family_id', header: 'Submitter Family ID' },
         { field: 'familyRelationships.relationship_to_proband', header: 'Relationship to Proband' },
         { field: 'mondo_tagged.name', header: 'Diagnosis (MONDO)' },
         { field: 'icd_tagged.name', header: 'Diagnosis (ICD)' },
         { field: 'diagnoses.diagnosis_source_text', header: 'Diagnosis (Source Text)' },
-        { field: 'diagnoses.age_at_diagnosis', header: 'Age at Diagnosis (days)' },
+        { field: 'diagnoses.age_at_diagnosis', header: 'Age at Diagnosis (Days)' },
     ],
     sort: [
         {
