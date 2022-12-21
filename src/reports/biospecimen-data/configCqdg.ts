@@ -16,7 +16,7 @@ const biospecimens: SheetConfig = {
         { field: 'biospecimen_tissue_source', header: 'Biospecimen Tissue Source' },
         {
             field: 'age_biospecimen_collection',
-            header: 'Age at Biospecimen Collection (days)',
+            header: 'Age at Biospecimen Collection (Days)',
         },
     ],
     sort: [
