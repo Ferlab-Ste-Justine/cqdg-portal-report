@@ -6,12 +6,12 @@ const participants: SheetConfig = {
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
-        { field: 'familyRelationships.family_id', header: 'Family ID' },
-        { field: 'familyRelationships.submitter_family_id', header: 'Submitter Family ID' },
-        { field: 'familyRelationships.relationship_to_proband', header: 'Relationship to Proband' },
+        { field: 'family_relationships.family_id', header: 'Family ID' },
+        { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
+        { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
         { field: 'study.name', header: 'Study Name' },
         { field: 'study.study_code', header: 'Study Code' },
-        { field: 'familyRelationships.family_type', header: 'Family Type' },
+        { field: 'family_relationships.family_type', header: 'Family Type' },
         { field: 'gender' },
         { field: 'ethnicity' },
         { field: 'vital_status', header: 'Vital Status' },
@@ -33,9 +33,9 @@ const phenotypes: SheetConfig = {
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
-        { field: 'familyRelationships.family_id', header: 'Family ID' },
-        { field: 'familyRelationships.submitter_family_id', header: 'Submitter Family ID' },
-        { field: 'familyRelationships.relationship_to_proband', header: 'Relationship to Proband' },
+        { field: 'family_relationships.family_id', header: 'Family ID' },
+        { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
+        { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
         {
             field: 'observed_phenotype_tagged.name',
             additionalFields: ['non_observed_phenotype_tagged.name'],
@@ -82,7 +82,7 @@ const phenotypes: SheetConfig = {
     ],
     sort: [
         {
-            'familyRelationships.family_id': {
+            'family_relationships.family_id': {
                 order: 'asc',
             },
         },
@@ -110,9 +110,9 @@ const diagnoses: SheetConfig = {
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
-        { field: 'familyRelationships.family_id', header: 'Family ID' },
-        { field: 'familyRelationships.submitter_family_id', header: 'Submitter Family ID' },
-        { field: 'familyRelationships.relationship_to_proband', header: 'Relationship to Proband' },
+        { field: 'family_relationships.family_id', header: 'Family ID' },
+        { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
+        { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
         { field: 'mondo_tagged.name', header: 'Diagnosis (MONDO)' },
         { field: 'icd_tagged.name', header: 'Diagnosis (ICD)' },
         { field: 'diagnoses.diagnosis_source_text', header: 'Diagnosis (Source Text)' },
@@ -120,7 +120,7 @@ const diagnoses: SheetConfig = {
     ],
     sort: [
         {
-            'familyRelationships.family_id': {
+            'family_relationships.family_id': {
                 order: 'asc',
             },
         },
@@ -139,19 +139,19 @@ const diagnoses: SheetConfig = {
 
 const familyRelationship: SheetConfig = {
     sheetName: 'Family Relationship',
-    root: 'familyRelationships',
+    root: 'family_relationships',
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
-        { field: 'familyRelationships.family_id', header: 'Family ID' },
-        { field: 'familyRelationships.submitter_family_id', header: 'Submitter Family ID' },
-        { field: 'familyRelationships.focus_participant_id', header: 'Family Member ID' },
-        { field: 'familyRelationships.relationship_to_proband', header: 'Relationship to Proband' },
+        { field: 'family_relationships.family_id', header: 'Family ID' },
+        { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
+        { field: 'family_relationships.focus_participant_id', header: 'Family Member ID' },
+        { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
     ],
     sort: [
         { participant_id: 'asc' },
         {
-            'familyRelationships.family_id': {
+            'family_relationships.family_id': {
                 order: 'asc',
             },
         },
