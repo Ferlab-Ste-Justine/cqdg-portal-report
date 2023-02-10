@@ -5,8 +5,8 @@ import { getExtendedConfigs, getNestedFields } from '../../utils/arrangerUtils';
 import { executeSearch } from '../../utils/esUtils';
 import { Client } from '@elastic/elasticsearch';
 import { resolveSetsInSqon } from '../../utils/sqonUtils';
-import { ProjectType } from '../types';
 import { Sqon } from '../../utils/setsTypes';
+import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 
 /**
  * Generate a sqon from the family_id of all the participants in the given `sqon`.
@@ -16,17 +16,15 @@ import { Sqon } from '../../utils/setsTypes';
  * @param {object} normalizedConfigs - the normalized report configuration.
  * @param {string} userId - the user id.
  * @param {string} accessToken - the user access token.
- * @param {string} program - the program the report will run on.
  * @returns {object} - A sqon of all the `family_id`.
  */
 export default async (
     es: Client,
     projectId: string,
     sqon: Sqon,
-    normalizedConfigs,
+    normalizedConfigs: ExtendedReportConfigs,
     userId: string,
     accessToken: string,
-    program: string,
 ): Promise<Sqon> => {
     const extendedConfig = await getExtendedConfigs(es, projectId, normalizedConfigs.indexName);
     const nestedFields = getNestedFields(extendedConfig);
