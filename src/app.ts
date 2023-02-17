@@ -2,7 +2,6 @@ import cors from 'cors';
 import express, { Application } from 'express';
 import Keycloak, { KeycloakConfig } from 'keycloak-connect';
 
-import { ES_HOST } from './env';
 import { unknownEndpointHandler, globalErrorLogger, globalErrorHandler } from './errors';
 import reportsEndpoint from './reports';
 import statusEndpoint from './status';
@@ -31,7 +30,7 @@ export default function(keycloakConfig: KeycloakConfig): Application {
     app.get('/', statusEndpoint);
 
     // endpoints to generate the reports
-    app.use('/reports', keycloak.protect(), reportsEndpoint(ES_HOST));
+    app.use('/reports', keycloak.protect(), reportsEndpoint());
 
     app.use(globalErrorLogger, unknownEndpointHandler, globalErrorHandler);
 

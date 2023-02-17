@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
 import { Client } from '@elastic/elasticsearch';
 import generateReport from '../generateReport';
-import configCqdg from './configCqdg';
-import configFamilyCqdg from './configFamilyCqdg';
+import configCqdg from './config';
 import { normalizeConfigs } from '../../utils/configUtils';
+import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 import { reportGenerationErrorHandler } from '../../errors';
-import { ES_PWD, ES_USER, ES_HOST, PROJECT } from '../../env';
-import generateFamilySqon from '../file-manifest/generateFamilySqon';
+import { ES_PWD, ES_USER, ES_HOST } from '../../env';
+import generateFamilySqon from './generateFamilySqon';
 
-const clinicalDataReport = ({ withFamily = false }: { withFamily: boolean }) => async (req: Request, res: Response) => {
-    console.time('clinicalDataReport');
-    console.log('clinicalDataReport withFamily=', withFamily);
+const fileManifestReport = ({ withFamily = false }: { withFamily: boolean }) => async (req: Request, res: Response) => {
+    console.time('fileManifestReport');
+    console.log('fileManifestReport withFamily=', withFamily);
 
     const { sqon, projectId, filename = null } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
@@ -18,14 +18,13 @@ const clinicalDataReport = ({ withFamily = false }: { withFamily: boolean }) => 
 
     let es = null;
     try {
-        // prepare the ES client
         es =
             ES_PWD && ES_USER
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
         // decorate the configs with default values, values from arranger's project, etc...
-        const normalizedConfigs = await normalizeConfigs(es, projectId, withFamily ? configFamilyCqdg : configCqdg);
+        const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(es, projectId, configCqdg);
 
         const newSqon = withFamily
             ? await generateFamilySqon(es, projectId, sqon, normalizedConfigs, userId, accessToken)
@@ -38,7 +37,7 @@ const clinicalDataReport = ({ withFamily = false }: { withFamily: boolean }) => 
         reportGenerationErrorHandler(err, es);
     }
 
-    console.timeEnd('clinicalDataReport');
+    console.timeEnd('fileManifestReport');
 };
 
-export default clinicalDataReport;
+export default fileManifestReport;

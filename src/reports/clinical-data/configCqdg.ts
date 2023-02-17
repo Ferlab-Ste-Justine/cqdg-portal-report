@@ -27,6 +27,11 @@ const participants: SheetConfig = {
     ],
 };
 
+// nouvelle route dynamique/generique:
+// projet id
+// schema -> template que tu veux pour le tsv
+// [ids] des files a mettre dedans
+
 const phenotypes: SheetConfig = {
     sheetName: 'Phenotypes',
     root: 'observed_phenotype_tagged',

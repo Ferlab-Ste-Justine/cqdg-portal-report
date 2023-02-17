@@ -1,15 +1,17 @@
-import express from 'express';
+import express, { Router } from 'express';
 
 import clinicalDataReport from './clinical-data';
-import familyClinicalDataReport from './family-clinical-data';
 import biospecimenDataReport from './biospecimen-data';
+import fileManifestReport from './file-manifest';
 
-export default (esHost: string) => {
+export default (): Router => {
     const router = express.Router();
 
-    // declare a route for each report
-    router.use('/clinical-data', clinicalDataReport(esHost));
-    router.use('/family-clinical-data', familyClinicalDataReport(esHost));
-    router.use('/biospecimen-data', biospecimenDataReport(esHost));
+    router.use('/clinical-data', clinicalDataReport({ withFamily: false }));
+    router.use('/clinical-data-family', clinicalDataReport({ withFamily: true }));
+    router.use('/biospecimen-data', biospecimenDataReport());
+    router.use('/file-manifest', fileManifestReport({ withFamily: false }));
+    router.use('/file-manifest-family', fileManifestReport({ withFamily: true }));
+
     return router;
 };

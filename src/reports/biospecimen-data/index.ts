@@ -5,10 +5,10 @@ import configCqdg from './configCqdg';
 import { normalizeConfigs } from '../../utils/configUtils';
 import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 import { reportGenerationErrorHandler } from '../../errors';
-import { ES_PWD, ES_USER } from '../../env';
+import { ES_PWD, ES_USER, ES_HOST } from '../../env';
 
-const clinicalDataReport = (esHost: string) => async (req: Request, res: Response) => {
-    console.time('biospecimen-data');
+const biospecimenDataReport = () => async (req: Request, res: Response) => {
+    console.time('biospecimenDataReport');
 
     const { sqon, projectId, filename = null } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
@@ -19,8 +19,8 @@ const clinicalDataReport = (esHost: string) => async (req: Request, res: Respons
         // prepare the ES client
         es =
             ES_PWD && ES_USER
-                ? new Client({ node: esHost, auth: { password: ES_PWD, username: ES_USER } })
-                : new Client({ node: esHost });
+                ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
+                : new Client({ node: ES_HOST });
 
         // decorate the configs with default values, values from arranger's project, etc...
         const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(es, projectId, configCqdg);
@@ -32,7 +32,7 @@ const clinicalDataReport = (esHost: string) => async (req: Request, res: Respons
         reportGenerationErrorHandler(err, es);
     }
 
-    console.timeEnd('biospecimen-data');
+    console.timeEnd('biospecimenDataReport');
 };
 
-export default clinicalDataReport;
+export default biospecimenDataReport;

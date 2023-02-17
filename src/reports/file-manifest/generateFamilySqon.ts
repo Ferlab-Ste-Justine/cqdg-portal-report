@@ -34,7 +34,7 @@ export default async (
     const participantIds =
         (sqon.content || []).filter(e => (e.content?.field || '') === 'participant_id')[0]?.content.value || [];
 
-    const field = 'family_id'; //fixme!!
+    const field = 'family_id';
     const esRequest = {
         query,
         aggs: {
