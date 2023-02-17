@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Client } from '@elastic/elasticsearch';
 import generateReport from '../generateReport';
-import configCqdg from './config';
+import configCqdg from './configCqdg';
 import { normalizeConfigs } from '../../utils/configUtils';
 import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 import { reportGenerationErrorHandler } from '../../errors';
