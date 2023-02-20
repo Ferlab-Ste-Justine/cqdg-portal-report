@@ -5,8 +5,8 @@ import configCqdg from './configCqdg';
 import configFamilyCqdg from './configFamilyCqdg';
 import { normalizeConfigs } from '../../utils/configUtils';
 import { reportGenerationErrorHandler } from '../../errors';
-import { ES_PWD, ES_USER, ES_HOST, PROJECT } from '../../env';
-import generateFamilySqon from '../file-manifest/generateFamilySqon';
+import { ES_PWD, ES_USER, ES_HOST } from '../../env';
+import generateFamilySqon from './generateFamilySqon';
 
 const clinicalDataReport = ({ withFamily = false }: { withFamily: boolean }) => async (req: Request, res: Response) => {
     console.time('clinicalDataReport');

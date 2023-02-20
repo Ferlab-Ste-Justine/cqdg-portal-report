@@ -6,15 +6,15 @@ const participants: SheetConfig = {
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
-        { field: 'study.name', header: 'Study Name' },
-        { field: 'study.study_code', header: 'Study Code' },
-        { field: 'gender' },
-        { field: 'ethnicity' },
-        { field: 'vital_status', header: 'Vital Status' },
         { field: 'family_relationships.family_id', header: 'Family ID' },
         { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
         { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
+        { field: 'study.name', header: 'Study Name' },
+        { field: 'study.study_code', header: 'Study Code' },
         { field: 'family_relationships.family_type', header: 'Family Type' },
+        { field: 'gender' },
+        { field: 'ethnicity' },
+        { field: 'vital_status', header: 'Vital Status' },
         { field: 'is_affected', header: 'Affected Status' },
         { field: 'age_at_recruitment', header: 'Age at Recruitment (Days)' },
     ],
@@ -26,11 +26,6 @@ const participants: SheetConfig = {
         },
     ],
 };
-
-// nouvelle route dynamique/generique:
-// projet id
-// schema -> template que tu veux pour le tsv
-// [ids] des files a mettre dedans
 
 const phenotypes: SheetConfig = {
     sheetName: 'Phenotypes',
@@ -80,10 +75,7 @@ const phenotypes: SheetConfig = {
                 }
             },
         },
-        {
-            field: 'observed_phenotype_tagged.age_at_event',
-            header: 'Age at Phenotype (Days)',
-        },
+        { field: 'observed_phenotype_tagged.age_at_event', header: 'Age at Phenotype (Days)' },
     ],
     sort: [
         {

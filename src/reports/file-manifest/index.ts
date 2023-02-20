@@ -9,9 +9,6 @@ import { ES_PWD, ES_USER, ES_HOST } from '../../env';
 import generateFamilySqon from './generateFamilySqon';
 
 const fileManifestReport = ({ withFamily = false }: { withFamily: boolean }) => async (req: Request, res: Response) => {
-    console.time('fileManifestReport');
-    console.log('fileManifestReport withFamily=', withFamily);
-
     const { sqon, projectId, filename = null } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
@@ -26,11 +23,8 @@ const fileManifestReport = ({ withFamily = false }: { withFamily: boolean }) => 
         // decorate the configs with default values, values from arranger's project, etc...
         const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(es, projectId, configCqdg);
 
-        const newSqon = withFamily
-            ? await generateFamilySqon(es, projectId, sqon, normalizedConfigs, userId, accessToken)
-            : sqon;
+        const newSqon = withFamily ? await generateFamilySqon(es, sqon, normalizedConfigs) : sqon;
 
-        // Generate the report
         await generateReport(es, res, projectId, newSqon, filename, normalizedConfigs, userId, accessToken);
         es.close();
     } catch (err) {
