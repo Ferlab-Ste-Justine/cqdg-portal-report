@@ -16,5 +16,5 @@ jobs:
         with:
           username: ${{ secrets.FERLAB_DOCKER_HUB_USER }}
           password: ${{ secrets.FERLAB_DOCKER_HUB_TOKEN }}
-          image: ferlabcrsj/cqdg-portal-report
+          image: ferlabcrsj/api-portal-reports
           tag_format: "{sha}-{timestamp}"
