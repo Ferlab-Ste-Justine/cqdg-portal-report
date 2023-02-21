@@ -1,4 +1,4 @@
-name: Publish Image Using Semver Tag
+name: Publish Image Using Tag
 
 on:
   push:
@@ -6,15 +6,15 @@ on:
       - v*
 
 jobs:
-  push:
-    name: Publish Image using tags
+  build:
+    name: Publish Image
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - name: Push the image on the registry
+      - name: Push the image on the docker registry
         uses: Ferlab-Ste-Justine/action-push-image@v2
         with:
           username: ${{ secrets.FERLAB_DOCKER_HUB_USER }}
           password: ${{ secrets.FERLAB_DOCKER_HUB_TOKEN }}
-          image: ferlabcrsj/api-portal-reports
+          image: ferlabcrsj/cqdg-portal-report
           tag_format: "{semver}"
