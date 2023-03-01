@@ -6,7 +6,6 @@ import { Response } from 'express';
 const generateFiles = async (
     es: Client,
     res: Response,
-    projectId: string,
     newFileIds: string[],
     studyInfos: IStudyInfos[],
 ): Promise<void[]> => {

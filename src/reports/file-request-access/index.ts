@@ -13,7 +13,7 @@ const fileRequestAccess = ({ withFamily = false }: { withFamily: boolean }) => a
 ): Promise<void> => {
     console.time('fileRequestAccess');
 
-    const { sqon, projectId } = req.body;
+    const { sqon } = req.body;
 
     let es = null;
     try {
@@ -22,11 +22,11 @@ const fileRequestAccess = ({ withFamily = false }: { withFamily: boolean }) => a
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
-        const fileName = `${PROJECT}-request-access.tar.gz`;
+        const fileName = `${PROJECT}-access-request.tar.gz`;
         const fileIds = sqon.content?.find(e => e.content?.field === 'file_id')?.content?.value || [];
         const newFileIds = withFamily ? await generateFamilyIds(es, fileIds) : fileIds;
         const studyInfos = await getStudiesInfos(es, newFileIds);
-        await generateFiles(es, res, projectId, newFileIds, studyInfos);
+        await generateFiles(es, res, newFileIds, studyInfos);
         await generateZip(studyInfos, fileName);
 
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
