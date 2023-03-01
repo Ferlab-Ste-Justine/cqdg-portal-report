@@ -9,6 +9,8 @@ import { ES_PWD, ES_USER, ES_HOST } from '../../env';
 import generateFamilySqon from './generateFamilySqon';
 
 const fileManifestReport = ({ withFamily = false }: { withFamily: boolean }) => async (req: Request, res: Response) => {
+    console.time('fileManifestReport');
+
     const { sqon, projectId, filename = null } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;

@@ -57,7 +57,9 @@
     "filesize": "^10.0.6",
     "keycloak-connect": "^14.0.0",
     "lodash": "^4.17.21",
-    "node-fetch": "^2.6.5"
+    "node-fetch": "^2.6.5",
+    "tar": "^6.1.13",
+    "zlib": "^1.0.5"
   },
   "husky": {
     "hooks": {

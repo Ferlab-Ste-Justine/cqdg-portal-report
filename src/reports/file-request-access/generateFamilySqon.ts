@@ -1,7 +1,6 @@
 import { executeSearch } from '../../utils/esUtils';
 import { Client } from '@elastic/elasticsearch';
-import { Sqon } from '../../utils/setsTypes';
-import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
+import { esFileIndex } from '../../env';
 
 interface IFileInfo {
     data_type: string;
@@ -9,18 +8,14 @@ interface IFileInfo {
 }
 
 /** Get IFileInfo: files data_types and family_ids */
-const getFilesInfo = async (
-    fileIds: string[],
-    es: Client,
-    normalizedConfigs: ExtendedReportConfigs,
-): Promise<IFileInfo[]> => {
+const getFilesInfo = async (fileIds: string[], es: Client): Promise<IFileInfo[]> => {
     const esRequest = {
         query: { bool: { must: [{ terms: { file_id: fileIds, boost: 0 } }] } },
         _source: ['file_id', 'data_type', 'participants.participant_id', 'participants.family_id'],
         sort: [{ data_type: { order: 'asc' } }],
         size: 10000,
     };
-    const results = await executeSearch(es, normalizedConfigs.alias, esRequest);
+    const results = await executeSearch(es, esFileIndex, esRequest);
     const hits = results?.body?.hits?.hits || [];
     const sources = hits.map(hit => hit._source);
     const filesInfos = [];
@@ -41,11 +36,7 @@ const getFilesInfo = async (
 };
 
 /** for each filesInfos iteration, get files from file.participants.family_id and file.data_type */
-const getFilesIdsMatched = async (
-    filesInfos: IFileInfo[],
-    es: Client,
-    normalizedConfigs: ExtendedReportConfigs,
-): Promise<IFileInfo[]> => {
+const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<string[]> => {
     const filesIdsMatched = [];
     const results = await Promise.all(
         filesInfos.map(info => {
@@ -68,7 +59,7 @@ const getFilesIdsMatched = async (
                 _source: ['file_id'],
                 size: 10000,
             };
-            return executeSearch(es, normalizedConfigs.alias, esRequest);
+            return executeSearch(es, esFileIndex, esRequest);
         }),
     );
 
@@ -82,19 +73,16 @@ const getFilesIdsMatched = async (
 };
 
 /**
- * Generate a sqon from the family_id of all the files.participants in the given `sqon`.
- * @param {object} es - an `elasticsearch.Client` instance.
- * @param {object} sqon - the sqon used to filter the results.
- * @param {object} normalizedConfigs - the normalized report configuration.
- * @returns {object} - A sqon of all the `family_id`.
+ *
+ * @param es
+ * @param fileIds
  */
-const generateFamilySqon = async (es: Client, sqon: Sqon, normalizedConfigs: ExtendedReportConfigs): Promise<Sqon> => {
-    const fileIds = sqon.content?.find(e => e.content?.field === 'file_id')?.content?.value || [];
-    const filesInfos = await getFilesInfo(fileIds, es, normalizedConfigs);
-    const filesIdsMatched = await getFilesIdsMatched(filesInfos, es, normalizedConfigs);
+const generateFamilyIds = async (es: Client, fileIds: string[]): Promise<string[]> => {
+    const filesInfos = await getFilesInfo(fileIds, es);
+    const filesIdsMatched = await getFilesIdsMatched(filesInfos, es);
     const newFileIds = [...new Set([...fileIds, ...filesIdsMatched])];
 
-    return { op: 'or', content: [{ op: 'in', content: { field: 'file_id', value: newFileIds } }] };
+    return newFileIds;
 };
 
-export default generateFamilySqon;
+export default generateFamilyIds;
