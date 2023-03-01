@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 import { executeSearch } from '../../../utils/esUtils';
-import { esFileIndex } from '../../../env';
+import { esFileIndex } from '../../../config/env';
 
 interface IFileInfos {
     study_code: string;

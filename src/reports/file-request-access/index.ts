@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Client } from '@elastic/elasticsearch';
-import { reportGenerationErrorHandler } from '../../errors';
-import { ES_PWD, ES_USER, ES_HOST } from '../../env';
+import { reportGenerationErrorHandler } from '../../utils/errors';
+import { ES_PWD, ES_USER, ES_HOST, PROJECT } from '../../config/env';
 import generateFamilyIds from './generateFamilySqon';
 import generateFiles from './generateFiles';
 import generateZip from './generateZip';
@@ -22,7 +22,7 @@ const fileRequestAccess = ({ withFamily = false }: { withFamily: boolean }) => a
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
-        const fileName = 'tar.gz';
+        const fileName = `${PROJECT}-request-access.tar.gz`;
         const fileIds = sqon.content?.find(e => e.content?.field === 'file_id')?.content?.value || [];
         const newFileIds = withFamily ? await generateFamilyIds(es, fileIds) : fileIds;
         const studyInfos = await getStudiesInfos(es, newFileIds);

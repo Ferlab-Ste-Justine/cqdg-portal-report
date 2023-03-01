@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-import { RIFF_URL } from '../env';
+import { RIFF_URL } from '../config/env';
 import { Sqon, Sort } from './setsTypes';
 import { RiffError } from './riffError';
 

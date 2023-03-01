@@ -5,7 +5,7 @@ import { Response } from 'express';
 import flattenDeep from 'lodash/flattenDeep';
 import uniq from 'lodash/uniq';
 
-import * as env from '../env';
+import * as env from '../config/env';
 import {
     getExtendedConfigs,
     getNestedFields,
