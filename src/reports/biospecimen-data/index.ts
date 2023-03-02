@@ -1,11 +1,12 @@
-import { Request, Response } from 'express';
 import { Client } from '@elastic/elasticsearch';
-import generateReport from '../generateReport';
-import configCqdg from './configCqdg';
+import { Request, Response } from 'express';
+
+import { ES_HOST, ES_PWD, ES_USER } from '../../config/env';
 import { normalizeConfigs } from '../../utils/configUtils';
-import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 import { reportGenerationErrorHandler } from '../../utils/errors';
-import { ES_PWD, ES_USER, ES_HOST } from '../../config/env';
+import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
+import generateExcelReport from '../utils/generateExcelReport';
+import configCqdg from './configCqdg';
 
 const biospecimenDataReport = () => async (req: Request, res: Response) => {
     console.time('biospecimenDataReport');
@@ -26,7 +27,7 @@ const biospecimenDataReport = () => async (req: Request, res: Response) => {
         const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(es, projectId, configCqdg);
 
         // Generate the report
-        await generateReport(es, res, projectId, sqon, filename, normalizedConfigs, userId, accessToken);
+        await generateExcelReport(es, res, projectId, sqon, filename, normalizedConfigs, userId, accessToken);
         es.close();
     } catch (err) {
         reportGenerationErrorHandler(err, es);

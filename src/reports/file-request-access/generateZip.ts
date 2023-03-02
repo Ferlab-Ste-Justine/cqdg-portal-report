@@ -1,5 +1,6 @@
 import tar from 'tar';
-import { IStudyInfos } from '../generateFiles/getStudiesInfos';
+
+import { IStudyInfos } from './getStudiesInfos';
 
 const generateZip = async (studyInfos: IStudyInfos[], fileName: string): Promise<void> => {
     const fileNames: string[] = ['README_EN.txt', 'README_FR.txt', 'access.tsv'];

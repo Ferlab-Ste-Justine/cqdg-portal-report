@@ -1,19 +1,20 @@
-import { Request, Response } from 'express';
 import { Client } from '@elastic/elasticsearch';
-import generateReport from '../generateReport';
-import configCqdg from './configCqdg';
-import { normalizeConfigs } from '../../utils/configUtils';
-import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
-import { reportGenerationErrorHandler } from '../../utils/errors';
-import { ES_PWD, ES_USER, ES_HOST } from '../../config/env';
-import generateFamilySqon from './generateFamilySqon';
+import { Request, Response } from 'express';
 
-const fileManifestReport = ({ withFamily = false }: { withFamily: boolean }) => async (req: Request, res: Response) => {
+import { ES_HOST, ES_PWD, ES_USER, esFileIndex } from '../../config/env';
+import { reportGenerationErrorHandler } from '../../utils/errors';
+import generateTsvReport from '../utils/generateTsvReport';
+import getFamilyIds from '../utils/getFamilyIds';
+import getInfosByConfig from '../utils/getInfosByConfig';
+import configCqdg from './configCqdg';
+
+const fileManifestReport = ({ withFamily = false }: { withFamily: boolean }) => async (
+    req: Request,
+    res: Response,
+): Promise<void> => {
     console.time('fileManifestReport');
 
-    const { sqon, projectId, filename = null } = req.body;
-    const userId = req['kauth']?.grant?.access_token?.content?.sub;
-    const accessToken = req.headers.authorization;
+    const { sqon, filename } = req.body;
 
     let es = null;
     try {
@@ -22,12 +23,17 @@ const fileManifestReport = ({ withFamily = false }: { withFamily: boolean }) => 
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
-        // decorate the configs with default values, values from arranger's project, etc...
-        const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(es, projectId, configCqdg);
+        const fileIds = sqon.content?.find(e => e.content?.field === 'file_id')?.content?.value || [];
+        const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
 
-        const newSqon = withFamily ? await generateFamilySqon(es, sqon, normalizedConfigs) : sqon;
+        const filesInfos = await getInfosByConfig(es, configCqdg, newFileIds, 'file_id', esFileIndex);
 
-        await generateReport(es, res, projectId, newSqon, filename, normalizedConfigs, userId, accessToken);
+        const path = `/tmp/${filename}.tsv`;
+        await generateTsvReport(filesInfos, path, configCqdg);
+
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}.tsv"`);
+        res.sendFile(path);
+
         es.close();
     } catch (err) {
         reportGenerationErrorHandler(err, es);

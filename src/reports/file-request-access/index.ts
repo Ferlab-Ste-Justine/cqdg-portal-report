@@ -1,11 +1,12 @@
-import { Request, Response } from 'express';
 import { Client } from '@elastic/elasticsearch';
+import { Request, Response } from 'express';
+
+import { ES_HOST, ES_PWD, ES_USER, PROJECT } from '../../config/env';
 import { reportGenerationErrorHandler } from '../../utils/errors';
-import { ES_PWD, ES_USER, ES_HOST, PROJECT } from '../../config/env';
-import generateFamilyIds from './generateFamilySqon';
+import getFamilyIds from '../utils/getFamilyIds';
 import generateFiles from './generateFiles';
 import generateZip from './generateZip';
-import getStudiesInfos from './generateFiles/getStudiesInfos';
+import getStudiesInfos from './getStudiesInfos';
 
 const fileRequestAccess = ({ withFamily = false }: { withFamily: boolean }) => async (
     req: Request,
@@ -24,9 +25,9 @@ const fileRequestAccess = ({ withFamily = false }: { withFamily: boolean }) => a
 
         const fileName = `${PROJECT}-access-request.tar.gz`;
         const fileIds = sqon.content?.find(e => e.content?.field === 'file_id')?.content?.value || [];
-        const newFileIds = withFamily ? await generateFamilyIds(es, fileIds) : fileIds;
+        const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
         const studyInfos = await getStudiesInfos(es, newFileIds);
-        await generateFiles(es, res, newFileIds, studyInfos);
+        await generateFiles(studyInfos);
         await generateZip(studyInfos, fileName);
 
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);

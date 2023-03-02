@@ -1,14 +1,8 @@
 import fs from 'fs';
-import { IStudyInfos } from './getStudiesInfos';
-import { Client } from '@elastic/elasticsearch';
-import { Response } from 'express';
 
-const generateFiles = async (
-    es: Client,
-    res: Response,
-    newFileIds: string[],
-    studyInfos: IStudyInfos[],
-): Promise<void[]> => {
+import { IStudyInfos } from './getStudiesInfos';
+
+const generateFiles = async (studyInfos: IStudyInfos[]): Promise<void[]> => {
     // Define the content of the README files
     // eslint-disable-next-line max-len
     const readmeEnContent = `Access.tsv document provides information about permitted data use purposes and conditions, mainly focused on research uses of data. "access_limitations" and "access_requirements" terms in the access.tsv file describe generic conditions for which datasets from each study you have selected for your research may be used. Please note that conditions may vary between studies or between some datasets within a study. We recommend that you review the conditions and ensure you are able to comply with these prior to requesting access to the data.\n\nStudy.tsv document provides a full list of all files you are requesting for each study. These files may be used in your access request. It is the requestor's responsibility to contact the Access authority and/or directly request access to data from these studies.`;

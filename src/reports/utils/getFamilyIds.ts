@@ -1,6 +1,7 @@
-import { executeSearch } from '../../utils/esUtils';
 import { Client } from '@elastic/elasticsearch';
+
 import { esFileIndex } from '../../config/env';
+import { executeSearch } from '../../utils/esUtils';
 
 interface IFileInfo {
     data_type: string;
@@ -77,7 +78,7 @@ const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<
  * @param es
  * @param fileIds
  */
-const generateFamilyIds = async (es: Client, fileIds: string[]): Promise<string[]> => {
+const getFamilyIds = async (es: Client, fileIds: string[]): Promise<string[]> => {
     const filesInfos = await getFilesInfo(fileIds, es);
     const filesIdsMatched = await getFilesIdsMatched(filesInfos, es);
     const newFileIds = [...new Set([...fileIds, ...filesIdsMatched])];
@@ -85,4 +86,4 @@ const generateFamilyIds = async (es: Client, fileIds: string[]): Promise<string[
     return newFileIds;
 };
 
-export default generateFamilyIds;
+export default getFamilyIds;

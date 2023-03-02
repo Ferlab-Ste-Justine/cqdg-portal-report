@@ -1,22 +1,22 @@
-import { Client } from '@elastic/elasticsearch';
 import { buildQuery } from '@arranger/middleware';
+import { Client } from '@elastic/elasticsearch';
 import xl from 'excel4node';
 import { Response } from 'express';
 import flattenDeep from 'lodash/flattenDeep';
 import uniq from 'lodash/uniq';
 
-import * as env from '../config/env';
+import * as env from '../../config/env';
 import {
-    getExtendedConfigs,
-    getNestedFields,
     findValueInField,
     generateColumnsForProperty,
-} from '../utils/arrangerUtils';
-import { executeSearchAfterQuery } from '../utils/esUtils';
-import ExtendedReportConfigs from '../utils/extendedReportConfigs';
-import ExtendedReportSheetConfigs from '../utils/extendedReportSheetConfigs';
-import { resolveSetsInSqon } from '../utils/sqonUtils';
-import { Sqon } from '../utils/setsTypes';
+    getExtendedConfigs,
+    getNestedFields,
+} from '../../utils/arrangerUtils';
+import { executeSearchAfterQuery } from '../../utils/esUtils';
+import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
+import ExtendedReportSheetConfigs from '../../utils/extendedReportSheetConfigs';
+import { Sqon } from '../../utils/setsTypes';
+import { resolveSetsInSqon } from '../../utils/sqonUtils';
 
 const EMPTY_HEADER = '--';
 
@@ -100,7 +100,7 @@ const getDefaultFilename = (): string => {
 /**
  * Generate and stream a report to `res`.
  */
-export default async function generateReport(
+export default async function generateExcelReport(
     es: Client,
     res: Response,
     projectId: string,
@@ -162,7 +162,7 @@ export default async function generateReport(
 
     // finalize the file here and stream it back
     console.time(`write report`);
-    const reportFilename = filename || getDefaultFilename();
+    const reportFilename = `${filename}.xlsx` || getDefaultFilename();
     wb.write(reportFilename, res);
     console.timeEnd(`write report`);
 }

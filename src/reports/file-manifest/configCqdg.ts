@@ -1,7 +1,7 @@
-import { QueryConfig, ReportConfig, SheetConfig } from '../types';
 import { formatFileSize } from '../../utils/formatFileSize';
+import { SheetConfig } from '../types';
 
-const files: SheetConfig = {
+const config: SheetConfig = {
     sheetName: 'Files',
     root: 'file',
     columns: [
@@ -24,22 +24,7 @@ const files: SheetConfig = {
         { field: 'biospecimens.submitter_biospecimen_id', header: 'Submitter Biospecimen ID' },
         { field: 'sequencing_experiment.bio_informatic_analysis', header: 'Analysis ID' },
     ],
-    sort: [
-        {
-            file_id: {
-                order: 'asc',
-            },
-        },
-    ],
+    sort: [{ file_id: { order: 'asc' } }],
 };
 
-export const queryConfigs: QueryConfig = {
-    indexName: 'file',
-    alias: 'file_centric',
-};
-
-export const sheetConfigs: SheetConfig[] = [files];
-
-const reportConfig: ReportConfig = { queryConfigs, sheetConfigs };
-
-export default reportConfig;
+export default config;
