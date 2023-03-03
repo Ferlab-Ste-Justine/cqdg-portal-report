@@ -61,6 +61,7 @@ const getFilesInfos = async (es: Client, fileIds: string[]): Promise<IFileInfos[
 
 export interface IStudyInfos {
     study_code: string;
+    study_name: string;
     files: IFileInfos[];
     access_limitations: string;
     access_requirements: string;
@@ -72,12 +73,13 @@ const getStudiesInfos = async (es: Client, fileIds: string[]): Promise<IStudyInf
     const filesInfos = await getFilesInfos(es, fileIds);
     const studiesInfo: IStudyInfos[] = [];
     for (const fileInfos of filesInfos) {
-        const studyInfo = studiesInfo.find(study => study.study_code === fileInfos.study_code);
+        const studyInfo = studiesInfo.find(study => study.study_name === fileInfos.study_name);
         if (studyInfo) {
             studyInfo.files.push(fileInfos);
         } else {
             studiesInfo.push({
                 study_code: fileInfos.study_code,
+                study_name: fileInfos.study_name,
                 files: [fileInfos],
                 access_limitations: fileInfos.access_limitations,
                 access_requirements: fileInfos.access_requirements,

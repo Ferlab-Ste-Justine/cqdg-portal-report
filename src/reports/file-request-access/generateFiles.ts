@@ -20,7 +20,7 @@ const generateFiles = async (studyInfos: IStudyInfos[]): Promise<void[]> => {
         let studyTsvContent = `Study Name\tSubmitter Participant ID\tParticipant ID\tFile Name\tData Type\tFormat\n`;
         for (const file of studyInfo.files) {
             // eslint-disable-next-line max-len
-            studyTsvContent += `${file.study_code}\t${file.submitter_participant_ids}\t${file.participant_ids}\t${file.file_name}\t${file.data_type}\t${file.file_format}\n`;
+            studyTsvContent += `${file.study_name}\t${file.submitter_participant_ids}\t${file.participant_ids}\t${file.file_name}\t${file.data_type}\t${file.file_format}\n`;
         }
         // Add to promises array
         createFilesSync.push(fs.writeFileSync(`/tmp/${studyInfo.study_code}.tsv`, studyTsvContent));
@@ -29,7 +29,7 @@ const generateFiles = async (studyInfos: IStudyInfos[]): Promise<void[]> => {
     // Define the content of the access TSV file, add row in file for each study found
     let accessTsvContent = `Study Name\tAccess Limitations\tAccess Requirements\tAccess Authority\n`;
     for (const studyInfo of studyInfos) {
-        accessTsvContent += `${studyInfo.study_code}\t${studyInfo.access_limitations}\t${studyInfo.access_requirements}\t${studyInfo.access_authority}\n`;
+        accessTsvContent += `${studyInfo.study_name}\t${studyInfo.access_limitations}\t${studyInfo.access_requirements}\t${studyInfo.access_authority}\n`;
     }
     createFilesSync.push(fs.writeFileSync(`/tmp/access.tsv`, accessTsvContent));
 
