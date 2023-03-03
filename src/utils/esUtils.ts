@@ -31,7 +31,7 @@ export const executeSearchAfterQuery = async (es: Client, index: string, query, 
     });
 
     // wrap values in an object to prevent closure bugs
-    let progress = {
+    const progress = {
         total: 0,
         fetched: 0,
     };
@@ -107,7 +107,7 @@ export const executeSearch = async (es, index, query) => {
     };
 
     try {
-        return await es.search(searchParams);
+        return es.search(searchParams);
     } catch (err) {
         console.error(`Error searching ES with params ${JSON.stringify(searchParams)}`, err);
         throw err;

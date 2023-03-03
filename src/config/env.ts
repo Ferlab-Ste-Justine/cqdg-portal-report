@@ -15,6 +15,8 @@ export const ES_PAGESIZE: number = Number(process.env.ES_PAGESIZE) || 1000;
 // Project (this is not the arranger project id)
 export const PROJECT: string = process.env.PROJECT || 'CQDG';
 
+export const esFileIndex = process.env.ES_FILE_INDEX || 'file_centric';
+
 // Keycloak configs
 export const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'https://auth.qa.cqdg.ferlab.bio/auth';
 export const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'CQDG';

@@ -1,11 +1,11 @@
 import { buildQuery } from '@arranger/middleware';
+import { Client } from '@elastic/elasticsearch';
 
 import { getExtendedConfigs, getNestedFields } from '../../utils/arrangerUtils';
 import { executeSearch } from '../../utils/esUtils';
-import { Client } from '@elastic/elasticsearch';
-import { resolveSetsInSqon } from '../../utils/sqonUtils';
-import { Sqon } from '../../utils/setsTypes';
 import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
+import { Sqon } from '../../utils/setsTypes';
+import { resolveSetsInSqon } from '../../utils/sqonUtils';
 
 /**
  * Generate a sqon from the family_id of all the participants in the given `sqon`.
