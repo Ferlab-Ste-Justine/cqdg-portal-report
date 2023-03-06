@@ -17,7 +17,7 @@ const config: SheetConfig = {
         { field: 'participants.participant_id', header: 'Participant ID' },
         { field: 'biospecimens.sample_id', header: 'Sample ID' },
         { field: 'biospecimens.biospecimen_id', header: 'Biospecimen ID' },
-        { field: 'participants.family_relationships.family_type', header: 'Family Type' },
+        { field: 'participants.family_relationships.family_type', header: 'Participant Type' },
         { field: 'participants.family_id', header: 'Family ID' },
         { field: 'participants.submitter_participant_id', header: 'Submitter Participant ID' },
         { field: 'biospecimens.submitter_sample_id', header: 'Submitter Sample ID' },
