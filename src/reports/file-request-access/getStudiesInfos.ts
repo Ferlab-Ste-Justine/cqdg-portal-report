@@ -16,13 +16,6 @@ interface IFileInfos {
     access_authority: string;
 }
 
-const getAccessAuthority = (study_code: string): string => {
-    if (study_code?.toLowerCase() === 'cag') {
-        return 'www.cag/acces.ca';
-    }
-    return 'NA';
-};
-
 const getFilesInfos = async (es: Client, fileIds: string[]): Promise<IFileInfos[]> => {
     const esRequest = {
         query: { bool: { must: [{ terms: { file_id: fileIds, boost: 0 } }] } },
@@ -37,6 +30,7 @@ const getFilesInfos = async (es: Client, fileIds: string[]): Promise<IFileInfos[
             'file_format',
             'study.data_access_codes.access_limitations',
             'study.data_access_codes.access_requirements',
+            'study.contact.value',
         ],
         sort: [{ file_id: { order: 'asc' } }],
         size: 10000,
@@ -52,9 +46,9 @@ const getFilesInfos = async (es: Client, fileIds: string[]): Promise<IFileInfos[
         file_name: file.file_name,
         data_type: file.data_type,
         file_format: file.file_format,
-        access_limitations: file.study.data_access_codes?.access_limitations.map(v => v).join(', '),
-        access_requirements: file.study.data_access_codes?.access_requirements.map(v => v).join(', '),
-        access_authority: file.study.data_access_codes?.access_authority || getAccessAuthority(file.study.study_code),
+        access_limitations: file.study?.data_access_codes?.access_limitations.map(v => v).join(', '),
+        access_requirements: file.study?.data_access_codes?.access_requirements.map(v => v).join(', '),
+        access_authority: file.study?.contact?.value,
     }));
     return filesInfos;
 };
