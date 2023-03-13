@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 
-import { esFileIndex } from '../../config/env';
+import { ES_QUERY_MAX_SIZE, esFileIndex } from '../../config/env';
 import { executeSearch } from '../../utils/esUtils';
 
 interface IFileInfos {
@@ -33,7 +33,7 @@ const getFilesInfos = async (es: Client, fileIds: string[]): Promise<IFileInfos[
             'study.contact.value',
         ],
         sort: [{ file_id: { order: 'asc' } }],
-        size: 10000,
+        size: ES_QUERY_MAX_SIZE,
     };
     const results = await executeSearch(es, esFileIndex, esRequest);
     const hits = results?.body?.hits?.hits || [];

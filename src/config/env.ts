@@ -11,11 +11,13 @@ export const ES_USER = process.env.ES_USER;
 export const ES_PWD = process.env.ES_PASS;
 // ElasticSearch queries parameters
 export const ES_PAGESIZE: number = Number(process.env.ES_PAGESIZE) || 1000;
+export const ES_QUERY_MAX_SIZE: number = Number(process.env.ES_QUERY_MAX_SIZE) || 10000;
 
 // Project (this is not the arranger project id)
 export const PROJECT: string = process.env.PROJECT || 'CQDG';
 
 export const esFileIndex = process.env.ES_FILE_INDEX || 'file_centric';
+export const esFileAlias = process.env.ES_FILE_INDEX || 'file';
 
 // Keycloak configs
 export const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'https://auth.qa.cqdg.ferlab.bio/auth';

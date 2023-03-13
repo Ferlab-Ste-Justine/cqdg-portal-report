@@ -1,6 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 import get from 'lodash/get';
 
+import { ES_QUERY_MAX_SIZE } from '../../config/env';
 import { executeSearch } from '../../utils/esUtils';
 import { SheetConfig } from '../types';
 
@@ -27,7 +28,7 @@ const getInfosByConfig = async (
         query: { bool: { must: [{ terms: { [idField]: ids, boost: 0 } }] } },
         _source: [...config.columns.map(e => e.field), ...(extraFields || [])],
         sort: config.sort,
-        size: 10000,
+        size: ES_QUERY_MAX_SIZE,
     };
     const results = await executeSearch(es, esIndex, esRequest);
     const hits = results?.body?.hits?.hits || [];
