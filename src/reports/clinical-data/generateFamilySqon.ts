@@ -1,6 +1,7 @@
 import { buildQuery } from '@arranger/middleware';
 import { Client } from '@elastic/elasticsearch';
 
+import { ES_QUERY_MAX_SIZE } from '../../config/env';
 import { getExtendedConfigs, getNestedFields } from '../../utils/arrangerUtils';
 import { executeSearch } from '../../utils/esUtils';
 import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
@@ -17,7 +18,7 @@ import { resolveSetsInSqon } from '../../utils/sqonUtils';
  * @param {string} accessToken - the user access token.
  * @returns {object} - A sqon of all the `family_id`.
  */
-const generateReport = async (
+const generateFamilySqon = async (
     es: Client,
     projectId: string,
     sqon: Sqon,
@@ -35,7 +36,7 @@ const generateReport = async (
 
     const esRequest = {
         query,
-        aggs: { family_id: { terms: { field: 'family_id', size: 100000 } } },
+        aggs: { family_id: { terms: { field: 'family_id', size: ES_QUERY_MAX_SIZE } } },
     };
     const results = await executeSearch(es, normalizedConfigs.alias, esRequest);
     const buckets = results?.body?.aggregations?.family_id?.buckets || [];
@@ -50,4 +51,4 @@ const generateReport = async (
     };
 };
 
-export default generateReport;
+export default generateFamilySqon;

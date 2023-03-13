@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { ES_HOST, ES_PWD, ES_USER, PROJECT } from '../../config/env';
 import { reportGenerationErrorHandler } from '../../utils/errors';
 import getFamilyIds from '../utils/getFamilyIds';
+import getFilesFromSqon from '../utils/getFilesFromSqon';
 import generateFiles from './generateFiles';
 import generateZip from './generateZip';
 import getStudiesInfos from './getStudiesInfos';
@@ -14,7 +15,9 @@ const fileRequestAccess = ({ withFamily = false }: { withFamily: boolean }) => a
 ): Promise<void> => {
     console.time('fileRequestAccess');
 
-    const { sqon } = req.body;
+    const { sqon, projectId } = req.body;
+    const userId = req['kauth']?.grant?.access_token?.content?.sub;
+    const accessToken = req.headers.authorization;
 
     let es = null;
     try {
@@ -24,7 +27,10 @@ const fileRequestAccess = ({ withFamily = false }: { withFamily: boolean }) => a
                 : new Client({ node: ES_HOST });
 
         const fileName = `${PROJECT}-access-request.tar.gz`;
-        const fileIds = sqon.content?.find(e => e.content?.field === 'file_id')?.content?.value || [];
+
+        const wantedFields = ['file_id'];
+        const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
+        const fileIds = files?.map(f => f.file_id);
         const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
         const studyInfos = await getStudiesInfos(es, newFileIds);
         await generateFiles(studyInfos);

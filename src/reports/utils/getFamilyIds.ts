@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 
-import { esFileIndex } from '../../config/env';
+import { ES_QUERY_MAX_SIZE, esFileIndex } from '../../config/env';
 import { executeSearch } from '../../utils/esUtils';
 
 interface IFileInfo {
@@ -12,9 +12,9 @@ interface IFileInfo {
 const getFilesInfo = async (fileIds: string[], es: Client): Promise<IFileInfo[]> => {
     const esRequest = {
         query: { bool: { must: [{ terms: { file_id: fileIds, boost: 0 } }] } },
-        _source: ['file_id', 'data_type', 'participants.participant_id', 'participants.family_id'],
+        _source: ['file_id', 'data_type', 'participants.family_id'],
         sort: [{ data_type: { order: 'asc' } }],
-        size: 10000,
+        size: ES_QUERY_MAX_SIZE,
     };
     const results = await executeSearch(es, esFileIndex, esRequest);
     const hits = results?.body?.hits?.hits || [];
@@ -58,7 +58,7 @@ const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<
                     },
                 },
                 _source: ['file_id'],
-                size: 10000,
+                size: ES_QUERY_MAX_SIZE,
             };
             return executeSearch(es, esFileIndex, esRequest);
         }),
