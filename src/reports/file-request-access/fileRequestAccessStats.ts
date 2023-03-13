@@ -15,7 +15,7 @@ interface IFileByStudy {
 const fileRequestAccessStats = () => async (req: Request, res: Response): Promise<void> => {
     console.time('getFileRequestAccessStats');
 
-    const { sqon, projectId, withFamily } = req.body;
+    const { sqon, projectId, withFamily = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 

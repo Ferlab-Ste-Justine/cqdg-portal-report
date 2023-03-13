@@ -17,7 +17,7 @@ interface IFileByDataType {
 const fileManifestStats = () => async (req: Request, res: Response): Promise<void> => {
     console.time('getFileManifestStats');
 
-    const { sqon, projectId, withFamily } = req.body;
+    const { sqon, projectId, withFamily = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 
