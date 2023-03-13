@@ -9,13 +9,10 @@ import generateFiles from './generateFiles';
 import generateZip from './generateZip';
 import getStudiesInfos from './getStudiesInfos';
 
-const fileRequestAccess = ({ withFamily = false }: { withFamily: boolean }) => async (
-    req: Request,
-    res: Response,
-): Promise<void> => {
+const fileRequestAccess = () => async (req: Request, res: Response): Promise<void> => {
     console.time('fileRequestAccess');
 
-    const { sqon, projectId } = req.body;
+    const { sqon, projectId, withFamily = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 

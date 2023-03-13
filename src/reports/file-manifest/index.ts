@@ -9,13 +9,10 @@ import getFilesFromSqon from '../utils/getFilesFromSqon';
 import getInfosByConfig from '../utils/getInfosByConfig';
 import configCqdg from './configCqdg';
 
-const fileManifestReport = ({ withFamily = false }: { withFamily: boolean }) => async (
-    req: Request,
-    res: Response,
-): Promise<void> => {
+const fileManifestReport = () => async (req: Request, res: Response): Promise<void> => {
     console.time('fileManifestReport');
 
-    const { sqon, filename, projectId } = req.body;
+    const { sqon, filename, projectId, withFamily = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 

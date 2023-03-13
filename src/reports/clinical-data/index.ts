@@ -9,11 +9,10 @@ import configCqdg from './configCqdg';
 import configFamilyCqdg from './configFamilyCqdg';
 import generateFamilySqon from './generateFamilySqon';
 
-const clinicalDataReport = ({ withFamily = false }: { withFamily: boolean }) => async (req: Request, res: Response) => {
+const clinicalDataReport = () => async (req: Request, res: Response) => {
     console.time('clinicalDataReport');
-    console.log('clinicalDataReport withFamily=', withFamily);
 
-    const { sqon, projectId, filename = null } = req.body;
+    const { sqon, projectId, filename = null, withFamily = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 
