@@ -1,21 +1,19 @@
+import compression from 'compression';
 import cors from 'cors';
 import express, { Application } from 'express';
 import Keycloak, { KeycloakConfig } from 'keycloak-connect';
 
-import { unknownEndpointHandler, globalErrorLogger, globalErrorHandler } from './utils/errors';
 import reportsEndpoint from './reports';
 import statusEndpoint from './status';
+import { globalErrorHandler, globalErrorLogger, unknownEndpointHandler } from './utils/errors';
 
 export default function(keycloakConfig: KeycloakConfig): Application {
     const keycloak = new Keycloak({}, keycloakConfig);
     const app = express();
 
-    app.use(
-        cors({
-            exposedHeaders: ['Content-Length', 'Content-Type', 'Content-Disposition'],
-        }),
-    );
-
+    app.use(cors());
+    app.use(compression());
+    app.use(express.json({ limit: '50mb' }));
     app.use(
         keycloak.middleware({
             logout: '/logout',
@@ -23,14 +21,12 @@ export default function(keycloakConfig: KeycloakConfig): Application {
         }),
     );
 
-    app.use(express.json({ limit: '10mb' }));
+    // endpoints to generate the reports
+    app.use('/reports', keycloak.protect(), reportsEndpoint());
 
     // Health check endpoint
     app.get('/status', statusEndpoint);
     app.get('/', statusEndpoint);
-
-    // endpoints to generate the reports
-    app.use('/reports', keycloak.protect(), reportsEndpoint());
 
     app.use(globalErrorLogger, unknownEndpointHandler, globalErrorHandler);
 

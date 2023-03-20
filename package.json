@@ -1,6 +1,6 @@
 {
   "name": "cqdg-portal-report",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "The Download Clinical Data API offers an endpoint to generate a report of clinical data based on a query built using the:",
   "main": "index.js",
   "scripts": {
@@ -51,6 +51,7 @@
   "dependencies": {
     "@arranger/middleware": "2.16.1",
     "@elastic/elasticsearch": "^7.4.0",
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^8.1.0",
     "excel4node": "^1.7.2",
