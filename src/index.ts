@@ -1,6 +1,6 @@
 import buildApp from './app';
-import keycloakConfig from './config/keycloak';
 import { PORT } from './config/env';
+import keycloakConfig from './config/keycloak';
 
 process.on('uncaughtException', err => {
     console.log(`Uncaught Exception: ${err.message}`);
