@@ -16,8 +16,8 @@ export default function(keycloakConfig: KeycloakConfig): Application {
             exposedHeaders: ['content-length', 'content-type', 'content-disposition'],
         }),
     );
-    app.use((_, res, next) => {
-        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+    app.use((req, res, next) => {
+        res.setHeader('Access-Control-Expose-Headers', 'content-disposition');
         next();
     });
     app.use(compression());
