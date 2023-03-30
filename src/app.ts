@@ -16,6 +16,10 @@ export default function(keycloakConfig: KeycloakConfig): Application {
             exposedHeaders: ['content-length', 'content-type', 'content-disposition'],
         }),
     );
+    app.use((_, res, next) => {
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        next();
+    });
     app.use(compression());
     app.use(express.json({ limit: '50mb' }));
     app.use(
