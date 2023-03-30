@@ -24,6 +24,7 @@ const fileRequestAccess = () => async (req: Request, res: Response): Promise<voi
                 : new Client({ node: ES_HOST });
 
         const fileName = `${PROJECT}-access-request.tar.gz`;
+        const path = `/tmp/${fileName}`;
 
         const wantedFields = ['file_id'];
         const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
@@ -31,10 +32,9 @@ const fileRequestAccess = () => async (req: Request, res: Response): Promise<voi
         const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
         const studyInfos = await getStudiesInfos(es, newFileIds);
         await generateFiles(studyInfos);
-        await generateZip(studyInfos, fileName);
+        await generateZip(studyInfos, fileName, path);
 
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-        res.sendFile(`/tmp/${fileName}`);
+        res.download(path, fileName);
 
         es.close();
     } catch (err) {
