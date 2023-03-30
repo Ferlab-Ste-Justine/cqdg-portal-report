@@ -33,7 +33,7 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
         const path = `/tmp/${filename}.tsv`;
         await generateTsvReport(filesInfos, path, configCqdg);
 
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}.tsv"`);
+        res.header('Content-Disposition', `attachment; filename="${filename}.tsv"`);
         res.sendFile(path);
 
         es.close();
