@@ -13,11 +13,11 @@ export default function(keycloakConfig: KeycloakConfig): Application {
 
     app.use(
         cors({
-            exposedHeaders: ['content-length', 'content-type', 'content-disposition'],
+            exposedHeaders: ['Content-Length', 'Content-Type', 'Content-Disposition'],
         }),
     );
     app.use((req, res, next) => {
-        res.setHeader('Access-Control-Expose-Headers', 'content-disposition');
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
         next();
     });
     app.use(compression());
