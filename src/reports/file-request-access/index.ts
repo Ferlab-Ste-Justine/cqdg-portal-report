@@ -34,7 +34,6 @@ const fileRequestAccess = () => async (req: Request, res: Response): Promise<voi
         await generateFiles(studyInfos);
         await generateZip(studyInfos, fileName, path);
 
-        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
         res.download(path, fileName);
 
         es.close();
