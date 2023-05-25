@@ -6,12 +6,32 @@ const participants: SheetConfig = {
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
-        { field: 'family_relationships.family_id', header: 'Family ID' },
-        { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
-        { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
+        {
+            field: 'family_relationships.family_id',
+            header: 'Family ID',
+            transform: values => (values ? [...new Set(values)] : []),
+        },
+        {
+            field: 'family_relationships.submitter_family_id',
+            header: 'Submitter Family ID',
+            transform: values => (values ? [...new Set(values)] : []),
+        },
+        {
+            field: 'family_relationships.relationship_to_proband',
+            header: 'Relationship to Proband',
+            additionalFields: ['family_relationships.submitter_participant_id'],
+            transform: (values, row) => {
+                const user = row?.family_relationships?.find(e => e.submitter_participant_id === row.participant_id);
+                return user?.relationship_to_proband;
+            },
+        },
         { field: 'study.name', header: 'Study Name' },
         { field: 'study.study_code', header: 'Study Code' },
-        { field: 'family_relationships.family_type', header: 'Family Type' },
+        {
+            field: 'family_relationships.family_type',
+            header: 'Family Type',
+            transform: values => (values ? [...new Set(values)] : []),
+        },
         { field: 'gender' },
         { field: 'ethnicity' },
         { field: 'vital_status', header: 'Vital Status' },
@@ -38,9 +58,25 @@ const phenotypes: SheetConfig = {
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
-        { field: 'family_relationships.family_id', header: 'Family ID' },
-        { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
-        { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
+        {
+            field: 'family_relationships.family_id',
+            header: 'Family ID',
+            transform: values => (values ? [...new Set(values)] : []),
+        },
+        {
+            field: 'family_relationships.submitter_family_id',
+            header: 'Submitter Family ID',
+            transform: values => (values ? [...new Set(values)] : []),
+        },
+        {
+            field: 'family_relationships.relationship_to_proband',
+            header: 'Relationship to Proband',
+            additionalFields: ['family_relationships.submitter_participant_id'],
+            transform: (values, row) => {
+                const user = row?.family_relationships?.find(e => e.submitter_participant_id === row.participant_id);
+                return user?.relationship_to_proband;
+            },
+        },
         {
             field: 'observed_phenotype_tagged.name',
             additionalFields: ['non_observed_phenotype_tagged.name'],
@@ -112,9 +148,25 @@ const diagnoses: SheetConfig = {
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
-        { field: 'family_relationships.family_id', header: 'Family ID' },
-        { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
-        { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
+        {
+            field: 'family_relationships.family_id',
+            header: 'Family ID',
+            transform: values => (values ? [...new Set(values)] : []),
+        },
+        {
+            field: 'family_relationships.submitter_family_id',
+            header: 'Submitter Family ID',
+            transform: values => (values ? [...new Set(values)] : []),
+        },
+        {
+            field: 'family_relationships.relationship_to_proband',
+            header: 'Relationship to Proband',
+            additionalFields: ['family_relationships.submitter_participant_id'],
+            transform: (values, row) => {
+                const user = row?.family_relationships?.find(e => e.submitter_participant_id === row.participant_id);
+                return user?.relationship_to_proband;
+            },
+        },
         { field: 'mondo_tagged.name', header: 'Diagnosis (MONDO)' },
         { field: 'icd_tagged.name', header: 'Diagnosis (ICD)' },
         { field: 'diagnoses.diagnosis_source_text', header: 'Diagnosis (Source Text)' },
