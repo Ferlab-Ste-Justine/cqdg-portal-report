@@ -36,6 +36,7 @@ export default function(keycloakConfig: KeycloakConfig): Application {
     app.get('/status', statusEndpoint);
     app.get('/', statusEndpoint);
 
+    // Error handling
     app.use(globalErrorLogger, unknownEndpointHandler, globalErrorHandler);
 
     return app;
