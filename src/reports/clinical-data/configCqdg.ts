@@ -190,7 +190,12 @@ const familyRelationship: SheetConfig = {
     sheetName: 'Family Relationship',
     root: 'family_relationships',
     columns: [
-        { field: 'participant_id', header: 'Participant ID' },
+        {
+            field: 'participant_id',
+            header: 'Participant ID',
+            additionalFields: ['family_relationships.submitter_participant_id'],
+            transform: (values, row) => row?.family_relationships?.submitter_participant_id,
+        },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
         { field: 'family_relationships.family_id', header: 'Family ID' },
         { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
@@ -198,9 +203,13 @@ const familyRelationship: SheetConfig = {
         { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
     ],
     sort: [
-        { participant_id: 'asc' },
         {
             'family_relationships.family_id': {
+                order: 'asc',
+            },
+        },
+        {
+            participant_id: {
                 order: 'asc',
             },
         },
