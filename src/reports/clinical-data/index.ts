@@ -1,15 +1,15 @@
 import { Client } from '@elastic/elasticsearch';
 import { Request, Response } from 'express';
+import { inspect } from 'util';
 
 import { ES_HOST, ES_PWD, ES_USER } from '../../config/env';
 import { normalizeConfigs } from '../../utils/configUtils';
 import { reportGenerationErrorHandler } from '../../utils/errors';
 import generateExcelReport from '../utils/generateExcelReport';
-import configCqdg from './configCqdg';
-import configFamilyCqdg from './configFamilyCqdg';
+import getConfig from './config/getConfig';
 import generateFamilySqon from './generateFamilySqon';
 
-const clinicalDataReport = () => async (req: Request, res: Response) => {
+const clinicalDataReport = () => async (req: Request, res: Response): Promise<void> => {
     console.time('clinicalDataReport');
 
     const { sqon, projectId, filename = null, withFamily = false } = req.body;
@@ -24,8 +24,10 @@ const clinicalDataReport = () => async (req: Request, res: Response) => {
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
+        const config = getConfig(withFamily);
+
         // decorate the configs with default values, values from arranger's project, etc...
-        const normalizedConfigs = await normalizeConfigs(es, projectId, withFamily ? configFamilyCqdg : configCqdg);
+        const normalizedConfigs = await normalizeConfigs(es, projectId, config);
 
         const newSqon = withFamily
             ? await generateFamilySqon(es, projectId, sqon, normalizedConfigs, userId, accessToken)

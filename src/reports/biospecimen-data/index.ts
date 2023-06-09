@@ -6,7 +6,7 @@ import { normalizeConfigs } from '../../utils/configUtils';
 import { reportGenerationErrorHandler } from '../../utils/errors';
 import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 import generateExcelReport from '../utils/generateExcelReport';
-import configCqdg from './configCqdg';
+import getConfig from './config/getConfig';
 
 const biospecimenDataReport = () => async (req: Request, res: Response) => {
     console.time('biospecimenDataReport');
@@ -23,8 +23,10 @@ const biospecimenDataReport = () => async (req: Request, res: Response) => {
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
+        const config = getConfig();
+
         // decorate the configs with default values, values from arranger's project, etc...
-        const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(es, projectId, configCqdg);
+        const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(es, projectId, config);
 
         // Generate the report
         await generateExcelReport(es, res, projectId, sqon, filename, normalizedConfigs, userId, accessToken);
