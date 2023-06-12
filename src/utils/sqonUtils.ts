@@ -1,6 +1,7 @@
 import { Dictionary, flattenDeep, get, isArray, zipObject } from 'lodash';
-import { Sqon } from './setsTypes';
+
 import { getRiffs } from './riffClient';
+import { Sqon } from './setsTypes';
 
 export const resolveSetsInSqon = async (sqon: Sqon, userId: string, accessToken: string): Promise<Sqon> => {
     const setIds: string[] = getSetIdsFromSqon(sqon || ({} as Sqon));

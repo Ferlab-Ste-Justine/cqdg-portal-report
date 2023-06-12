@@ -7,7 +7,7 @@ import generateTsvReport from '../utils/generateTsvReport';
 import getFamilyIds from '../utils/getFamilyIds';
 import getFilesFromSqon from '../utils/getFilesFromSqon';
 import getInfosByConfig from '../utils/getInfosByConfig';
-import configCqdg from './configCqdg';
+import getConfig from './config/getConfig';
 
 const fileManifestReport = () => async (req: Request, res: Response): Promise<void> => {
     console.time('fileManifestReport');
@@ -27,11 +27,10 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
         const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
         const fileIds = files?.map(f => f.file_id);
         const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
-
-        const filesInfos = await getInfosByConfig(es, configCqdg, newFileIds, 'file_id', esFileIndex);
-
+        const config = getConfig();
+        const filesInfos = await getInfosByConfig(es, config, newFileIds, 'file_id', esFileIndex);
         const path = `/tmp/${filename}.tsv`;
-        await generateTsvReport(filesInfos, path, configCqdg);
+        await generateTsvReport(filesInfos, path, config);
 
         res.download(path, `${filename}.tsv`);
 

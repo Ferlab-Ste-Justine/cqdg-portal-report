@@ -25,3 +25,10 @@ export const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'CQDG';
 export const KEYCLOAK_CLIENT = process.env.KEYCLOAK_CLIENT || 'cqdg-client';
 
 export const RIFF_URL = process.env.RIFF_URL || 'https://riff-qa.kf-strides.org';
+
+export enum Realm {
+    INCLUDE = 'includedcc',
+    CQDG = 'CQDG',
+    KF = 'kidsfirstdrc',
+    CLIN = 'clin',
+}

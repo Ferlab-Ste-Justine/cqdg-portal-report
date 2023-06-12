@@ -1,4 +1,4 @@
-import { QueryConfig, ReportConfig, SheetConfig } from '../types';
+import { QueryConfig, ReportConfig, SheetConfig } from '../../types';
 
 const participants: SheetConfig = {
     sheetName: 'Participants',
@@ -193,10 +193,15 @@ const familyRelationship: SheetConfig = {
         {
             field: 'participant_id',
             header: 'Participant ID',
-            additionalFields: ['family_relationships.submitter_participant_id'],
-            transform: (values, row) => row?.family_relationships?.submitter_participant_id,
+            additionalFields: ['family_relationships.participant_id'],
+            transform: (values, row) => row?.family_relationships?.participant_id,
         },
-        { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
+        {
+            field: 'submitter_participant_id',
+            header: 'Submitter Participant ID',
+            additionalFields: ['family_relationships.submitter_participant_id', 'submitter_participant_id'],
+            transform: (values, row) => row?.submitter_participant_id,
+        },
         { field: 'family_relationships.family_id', header: 'Family ID' },
         { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
         { field: 'family_relationships.focus_participant_id', header: 'Family Member ID' },
