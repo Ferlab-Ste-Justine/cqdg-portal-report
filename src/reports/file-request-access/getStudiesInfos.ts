@@ -1,5 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 
+import getConfigGlobal from '../../config';
 import { ES_QUERY_MAX_SIZE, esFileIndex } from '../../config/env';
 import { executeSearch } from '../../utils/esUtils';
 
@@ -17,21 +18,10 @@ interface IFileInfos {
 }
 
 const getFilesInfos = async (es: Client, fileIds: string[]): Promise<IFileInfos[]> => {
+    const configGlobal = getConfigGlobal();
     const esRequest = {
-        query: { bool: { must: [{ terms: { file_id: fileIds, boost: 0 } }] } },
-        _source: [
-            'file_id',
-            'study.study_code',
-            'study.name',
-            'participants.submitter_participant_id',
-            'participants.participant_id',
-            'file_name',
-            'data_type',
-            'file_format',
-            'study.data_access_codes.access_limitations',
-            'study.data_access_codes.access_requirements',
-            'study.contact.value',
-        ],
+        query: { bool: { must: [{ terms: { [configGlobal.file_id]: fileIds, boost: 0 } }] } },
+        _source: configGlobal.fileRequestGetFilesInfoSource,
         sort: [{ file_id: { order: 'asc' } }],
         size: ES_QUERY_MAX_SIZE,
     };
@@ -39,16 +29,28 @@ const getFilesInfos = async (es: Client, fileIds: string[]): Promise<IFileInfos[
     const hits = results?.body?.hits?.hits || [];
     const files = hits.map(hit => hit._source);
     const filesInfos = files.map(file => ({
-        study_code: file.study.study_code,
-        study_name: file.study.name,
-        submitter_participant_ids: file.participants.map(p => p.submitter_participant_id).join(', '),
-        participant_ids: file.participants.map(p => p.participant_id).join(', '),
-        file_name: file.file_name,
-        data_type: file.data_type,
-        file_format: file.file_format,
-        access_limitations: file.study?.data_access_codes?.access_limitations.map(v => v).join(', '),
-        access_requirements: file.study?.data_access_codes?.access_requirements.map(v => v).join(', '),
-        access_authority: file.study?.contact?.value,
+        study_code: file[configGlobal.study][configGlobal.study_code],
+        study_name: file[configGlobal.study][configGlobal.name],
+        submitter_participant_ids: file[configGlobal.participants]
+            .map(p => p[configGlobal.submitter_participant_id])
+            .join(', '),
+        participant_ids: file[configGlobal.participants].map(p => p[configGlobal.participant_id]).join(', '),
+        file_name: file[configGlobal.file_name],
+        data_type: file[configGlobal.data_type],
+        file_format: file[configGlobal.file_format],
+        access_limitations: file[configGlobal.study][configGlobal.data_access_codes]
+            ? file[configGlobal.study][configGlobal.data_access_codes][configGlobal.access_limitations]
+                  .map(v => v)
+                  .join(', ')
+            : [],
+        access_requirements: file[configGlobal.study][configGlobal.data_access_codes]
+            ? file[configGlobal.study][configGlobal.data_access_codes][configGlobal.access_requirements]
+                  .map(v => v)
+                  .join(', ')
+            : [],
+        access_authority: file[configGlobal.study][configGlobal.contact]
+            ? file[configGlobal.study][configGlobal.contact][configGlobal.value]
+            : [],
     }));
     return filesInfos;
 };

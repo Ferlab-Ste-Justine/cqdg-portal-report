@@ -1,4 +1,4 @@
-import { QueryConfig, ReportConfig, SheetConfig } from '../../types';
+import { QueryConfig, ReportConfig, SheetConfig } from '../../../reports/types';
 
 const biospecimens: SheetConfig = {
     sheetName: 'Biospecimens',

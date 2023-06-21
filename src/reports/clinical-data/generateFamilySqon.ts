@@ -7,6 +7,7 @@ import { executeSearch } from '../../utils/esUtils';
 import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 import { Sqon } from '../../utils/setsTypes';
 import { resolveSetsInSqon } from '../../utils/sqonUtils';
+import getConfig from './getConfig';
 
 /**
  * Generate a sqon from the family_id of all the participants in the given `sqon`.
@@ -30,23 +31,27 @@ const generateFamilySqon = async (
     const nestedFields = getNestedFields(extendedConfig);
     const newSqon = await resolveSetsInSqon(sqon, userId, accessToken);
     const query = buildQuery({ nestedFields, filters: newSqon });
+    const configGlobal = getConfig().global;
 
     const participantIds =
-        (sqon.content || []).filter(e => (e.content?.field || '') === 'participant_id')[0]?.content.value || [];
+        (sqon.content || []).filter(e => (e.content?.field || '') === configGlobal.participant_id)[0]?.content.value ||
+        [];
 
     const esRequest = {
         query,
-        aggs: { family_id: { terms: { field: 'family_id', size: ES_QUERY_MAX_SIZE } } },
+        aggs: { [configGlobal.family_id]: { terms: { field: configGlobal.family_id, size: ES_QUERY_MAX_SIZE } } },
     };
     const results = await executeSearch(es, normalizedConfigs.alias, esRequest);
-    const buckets = results?.body?.aggregations?.family_id?.buckets || [];
+    const buckets = results?.body?.aggregations
+        ? results?.body?.aggregations[configGlobal.family_id]?.buckets || []
+        : [];
     const familyIds = buckets.map(b => b.key);
 
     return {
         op: 'or',
         content: [
-            { op: 'in', content: { field: 'family_id', value: familyIds } },
-            { op: 'in', content: { field: 'participant_id', value: participantIds } },
+            { op: 'in', content: { field: configGlobal.family_id, value: familyIds } },
+            { op: 'in', content: { field: configGlobal.participant_id, value: participantIds } },
         ],
     };
 };

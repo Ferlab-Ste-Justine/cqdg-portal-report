@@ -1,4 +1,4 @@
-import { QueryConfig, ReportConfig, SheetConfig } from '../../types';
+import { QueryConfig, ReportConfig, SheetConfig } from '../../../reports/types';
 
 const participants: SheetConfig = {
     sheetName: 'Participants',
@@ -19,9 +19,9 @@ const participants: SheetConfig = {
         {
             field: 'family_relationships.relationship_to_proband',
             header: 'Relationship to Proband',
-            additionalFields: ['family_relationships.submitter_participant_id'],
+            additionalFields: ['family_relationships.participant_id', 'family_relationships.submitter_participant_id'],
             transform: (values, row) => {
-                const user = row?.family_relationships?.find(e => e.submitter_participant_id === row.participant_id);
+                const user = row?.family_relationships?.find(e => e.participant_id === row.participant_id);
                 return user?.relationship_to_proband;
             },
         },
@@ -40,6 +40,11 @@ const participants: SheetConfig = {
     ],
     sort: [
         {
+            'family_relationships.family_id': {
+                order: 'asc',
+            },
+        },
+        {
             participant_id: {
                 order: 'asc',
             },
@@ -49,7 +54,7 @@ const participants: SheetConfig = {
 
 const phenotypes: SheetConfig = {
     sheetName: 'Phenotypes',
-    root: 'observed_phenotype_tagged',
+    root: 'phenotype',
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
@@ -66,9 +71,9 @@ const phenotypes: SheetConfig = {
         {
             field: 'family_relationships.relationship_to_proband',
             header: 'Relationship to Proband',
-            additionalFields: ['family_relationships.submitter_participant_id'],
+            additionalFields: ['family_relationships.participant_id', 'family_relationships.submitter_participant_id'],
             transform: (values, row) => {
-                const user = row?.family_relationships?.find(e => e.submitter_participant_id === row.participant_id);
+                const user = row?.family_relationships?.find(e => e.participant_id === row.participant_id);
                 return user?.relationship_to_proband;
             },
         },
@@ -139,7 +144,7 @@ const phenotypes: SheetConfig = {
 
 const diagnoses: SheetConfig = {
     sheetName: 'Diagnoses',
-    root: 'mondo_tagged',
+    root: 'diagnosis',
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
@@ -156,9 +161,9 @@ const diagnoses: SheetConfig = {
         {
             field: 'family_relationships.relationship_to_proband',
             header: 'Relationship to Proband',
-            additionalFields: ['family_relationships.submitter_participant_id'],
+            additionalFields: ['family_relationships.participant_id', 'family_relationships.submitter_participant_id'],
             transform: (values, row) => {
-                const user = row?.family_relationships?.find(e => e.submitter_participant_id === row.participant_id);
+                const user = row?.family_relationships?.find(e => e.participant_id === row.participant_id);
                 return user?.relationship_to_proband;
             },
         },
@@ -186,47 +191,12 @@ const diagnoses: SheetConfig = {
     ],
 };
 
-const familyRelationship: SheetConfig = {
-    sheetName: 'Family Relationship',
-    root: 'family_relationships',
-    columns: [
-        {
-            field: 'participant_id',
-            header: 'Participant ID',
-            additionalFields: ['family_relationships.participant_id'],
-            transform: (values, row) => row?.family_relationships?.participant_id,
-        },
-        {
-            field: 'submitter_participant_id',
-            header: 'Submitter Participant ID',
-            additionalFields: ['family_relationships.submitter_participant_id', 'submitter_participant_id'],
-            transform: (values, row) => row?.submitter_participant_id,
-        },
-        { field: 'family_relationships.family_id', header: 'Family ID' },
-        { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
-        { field: 'family_relationships.focus_participant_id', header: 'Family Member ID' },
-        { field: 'family_relationships.relationship_to_proband', header: 'Relationship to Proband' },
-    ],
-    sort: [
-        {
-            'family_relationships.family_id': {
-                order: 'asc',
-            },
-        },
-        {
-            participant_id: {
-                order: 'asc',
-            },
-        },
-    ],
-};
-
 export const queryConfigs: QueryConfig = {
     indexName: 'participant',
     alias: 'participant_centric',
 };
 
-export const sheetConfigs: SheetConfig[] = [participants, phenotypes, diagnoses, familyRelationship];
+export const sheetConfigs: SheetConfig[] = [participants, phenotypes, diagnoses];
 
 const reportConfig: ReportConfig = { queryConfigs, sheetConfigs };
 

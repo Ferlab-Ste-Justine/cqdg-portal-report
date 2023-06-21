@@ -1,8 +1,8 @@
-import { KEYCLOAK_REALM, Realm } from '../../../config/env';
-import { SheetConfig } from '../../types';
-import configCqdg from './configCqdg';
+import configCqdg from '../../config/cqdg/biospecimenData/config';
+import { KEYCLOAK_REALM, Realm } from '../../config/env';
+import { ReportConfig } from '../types';
 
-const getConfig = (): SheetConfig => {
+const getConfig = (): ReportConfig => {
     switch (KEYCLOAK_REALM) {
         case Realm.CQDG:
             return configCqdg;
