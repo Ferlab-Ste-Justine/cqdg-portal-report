@@ -7,7 +7,7 @@ import generateTsvReport from '../utils/generateTsvReport';
 import getFamilyIds from '../utils/getFamilyIds';
 import getFilesFromSqon from '../utils/getFilesFromSqon';
 import getInfosByConfig from '../utils/getInfosByConfig';
-import getConfig from './config/getConfig';
+import getConfig from './getConfig';
 
 const fileManifestReport = () => async (req: Request, res: Response): Promise<void> => {
     console.time('fileManifestReport');
@@ -23,14 +23,20 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
-        const wantedFields = ['file_id'];
+        const { fileManifest: configFileManifest, global: configGlobal } = getConfig();
+        const wantedFields = [configGlobal.file_id];
         const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
-        const fileIds = files?.map(f => f.file_id);
+        const fileIds = files?.map(f => f[configGlobal.file_id]);
         const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
-        const config = getConfig();
-        const filesInfos = await getInfosByConfig(es, config, newFileIds, 'file_id', esFileIndex);
+        const filesInfos = await getInfosByConfig(
+            es,
+            configFileManifest,
+            newFileIds,
+            configGlobal.file_id,
+            esFileIndex,
+        );
         const path = `/tmp/${filename}.tsv`;
-        await generateTsvReport(filesInfos, path, config);
+        await generateTsvReport(filesInfos, path, configFileManifest);
 
         res.download(path, `${filename}.tsv`);
 

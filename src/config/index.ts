@@ -1,8 +1,7 @@
-import { KEYCLOAK_REALM, Realm } from '../../../config/env';
-import { ReportConfig } from '../../types';
-import configCqdg from './configCqdg';
+import configCqdg from './cqdg/configGlobal';
+import { KEYCLOAK_REALM, Realm } from './env';
 
-const getConfig = (): ReportConfig => {
+const getConfigGlobal = () => {
     switch (KEYCLOAK_REALM) {
         case Realm.CQDG:
             return configCqdg;
@@ -17,4 +16,4 @@ const getConfig = (): ReportConfig => {
     }
 };
 
-export default getConfig;
+export default getConfigGlobal;

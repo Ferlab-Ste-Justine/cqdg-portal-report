@@ -1,6 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 import { Request, Response } from 'express';
 
+import getConfigGlobal from '../../config';
 import { ES_HOST, ES_PWD, ES_USER, PROJECT } from '../../config/env';
 import { reportGenerationErrorHandler } from '../../utils/errors';
 import getFamilyIds from '../utils/getFamilyIds';
@@ -23,12 +24,13 @@ const fileRequestAccess = () => async (req: Request, res: Response): Promise<voi
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
+        const configGlobal = getConfigGlobal();
         const fileName = `${PROJECT}-access-request.tar.gz`;
         const path = `/tmp/${fileName}`;
 
-        const wantedFields = ['file_id'];
+        const wantedFields = [configGlobal.file_id];
         const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
-        const fileIds = files?.map(f => f.file_id);
+        const fileIds = files?.map(f => f[configGlobal.file_id]);
         const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
         const studyInfos = await getStudiesInfos(es, newFileIds);
         await generateFiles(studyInfos);

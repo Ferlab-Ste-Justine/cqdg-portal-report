@@ -6,8 +6,8 @@ import { ES_HOST, ES_PWD, ES_USER } from '../../config/env';
 import { normalizeConfigs } from '../../utils/configUtils';
 import { reportGenerationErrorHandler } from '../../utils/errors';
 import generateExcelReport from '../utils/generateExcelReport';
-import getConfig from './config/getConfig';
 import generateFamilySqon from './generateFamilySqon';
+import getConfig from './getConfig';
 
 const clinicalDataReport = () => async (req: Request, res: Response): Promise<void> => {
     console.time('clinicalDataReport');
@@ -24,10 +24,11 @@ const clinicalDataReport = () => async (req: Request, res: Response): Promise<vo
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
-        const config = getConfig(withFamily);
+        const config = getConfig();
+        const reportConfigs = withFamily ? config.clinicalDataFamily : config.clinicalData;
 
         // decorate the configs with default values, values from arranger's project, etc...
-        const normalizedConfigs = await normalizeConfigs(es, projectId, config);
+        const normalizedConfigs = await normalizeConfigs(es, projectId, reportConfigs);
 
         const newSqon = withFamily
             ? await generateFamilySqon(es, projectId, sqon, normalizedConfigs, userId, accessToken)

@@ -1,5 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 
+import getConfigGlobal from '../../config';
 import { ES_QUERY_MAX_SIZE, esFileIndex } from '../../config/env';
 import { executeSearch } from '../../utils/esUtils';
 
@@ -10,10 +11,15 @@ interface IFileInfo {
 
 /** Get IFileInfo: files data_types and family_ids */
 const getFilesInfo = async (fileIds: string[], es: Client): Promise<IFileInfo[]> => {
+    const configGlobal = getConfigGlobal();
     const esRequest = {
-        query: { bool: { must: [{ terms: { file_id: fileIds, boost: 0 } }] } },
-        _source: ['file_id', 'data_type', 'participants.family_id'],
-        sort: [{ data_type: { order: 'asc' } }],
+        query: { bool: { must: [{ terms: { [configGlobal.file_id]: fileIds, boost: 0 } }] } },
+        _source: [
+            configGlobal.file_id,
+            configGlobal.data_type,
+            `${configGlobal.participants}.${configGlobal.family_id}`,
+        ],
+        sort: [{ [configGlobal.data_type]: { order: 'asc' } }],
         size: ES_QUERY_MAX_SIZE,
     };
     const results = await executeSearch(es, esFileIndex, esRequest);
@@ -21,14 +27,18 @@ const getFilesInfo = async (fileIds: string[], es: Client): Promise<IFileInfo[]>
     const sources = hits.map(hit => hit._source);
     const filesInfos = [];
     sources.forEach(source => {
-        source.participants.forEach(participant => {
+        source[configGlobal.participants].forEach(participant => {
             if (
-                participant.family_id &&
-                !filesInfos.find(f => f.family_id === participant.family_id && f.data_type === source.data_type)
+                participant[configGlobal.family_id] &&
+                !filesInfos.find(
+                    f =>
+                        f[configGlobal.family_id] === participant[configGlobal.family_id] &&
+                        f[configGlobal.data_type] === source[configGlobal.data_type],
+                )
             ) {
                 filesInfos.push({
-                    data_type: source.data_type,
-                    family_id: participant.family_id || '',
+                    data_type: source[configGlobal.data_type],
+                    family_id: participant[configGlobal.family_id] || '',
                 });
             }
         });
@@ -38,6 +48,7 @@ const getFilesInfo = async (fileIds: string[], es: Client): Promise<IFileInfo[]>
 
 /** for each filesInfos iteration, get files from file.participants.family_id and file.data_type */
 const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<string[]> => {
+    const configGlobal = getConfigGlobal();
     const filesIdsMatched = [];
     const results = await Promise.all(
         filesInfos.map(info => {
@@ -45,19 +56,27 @@ const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<
                 query: {
                     bool: {
                         must: [
-                            { terms: { data_type: [info.data_type], boost: 0 } },
+                            { terms: { [configGlobal.data_type]: [info.data_type], boost: 0 } },
                             {
                                 nested: {
-                                    path: 'participants',
+                                    path: [configGlobal.participants],
                                     query: {
-                                        bool: { must: [{ match: { 'participants.family_id': info.family_id } }] },
+                                        bool: {
+                                            must: [
+                                                {
+                                                    match: {
+                                                        [`${configGlobal.participants}.${configGlobal.family_id}`]: info.family_id,
+                                                    },
+                                                },
+                                            ],
+                                        },
                                     },
                                 },
                             },
                         ],
                     },
                 },
-                _source: ['file_id'],
+                _source: [configGlobal.file_id],
                 size: ES_QUERY_MAX_SIZE,
             };
             return executeSearch(es, esFileIndex, esRequest);
@@ -67,7 +86,7 @@ const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<
     for (const res of results) {
         const hits = res?.body?.hits?.hits || [];
         const sources = hits.map(hit => hit._source);
-        filesIdsMatched.push(...sources.map(s => s.file_id));
+        filesIdsMatched.push(...sources.map(s => s[configGlobal.file_id]));
     }
 
     return filesIdsMatched;

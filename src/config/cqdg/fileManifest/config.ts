@@ -1,5 +1,5 @@
+import { SheetConfig } from '../../../reports/types';
 import { formatFileSize } from '../../../utils/formatFileSize';
-import { SheetConfig } from '../../types';
 
 const config: SheetConfig = {
     sheetName: 'Files',

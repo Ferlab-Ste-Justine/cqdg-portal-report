@@ -6,7 +6,7 @@ import { normalizeConfigs } from '../../utils/configUtils';
 import { reportGenerationErrorHandler } from '../../utils/errors';
 import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 import generateExcelReport from '../utils/generateExcelReport';
-import getConfig from './config/getConfig';
+import getConfig from './getConfig';
 
 const biospecimenDataReport = () => async (req: Request, res: Response) => {
     console.time('biospecimenDataReport');

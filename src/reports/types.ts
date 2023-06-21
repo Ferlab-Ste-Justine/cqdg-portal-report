@@ -21,7 +21,3 @@ export type ReportConfig = {
     queryConfigs: QueryConfig;
     sheetConfigs: SheetConfig[];
 };
-
-export enum ProjectType {
-    cqdg = 'cqdg',
-}

@@ -1,6 +1,7 @@
 import { Client } from '@elastic/elasticsearch';
 import { Request, Response } from 'express';
 
+import getConfigGlobal from '../../config';
 import { ES_HOST, ES_PWD, ES_USER } from '../../config/env';
 import { reportGenerationErrorHandler } from '../../utils/errors';
 import getFamilyIds from '../utils/getFamilyIds';
@@ -26,23 +27,24 @@ const fileRequestAccessStats = () => async (req: Request, res: Response): Promis
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
-        const wantedFields = ['file_id', 'study.study_code', 'study.name'];
+        const configGlobal = getConfigGlobal();
+        const wantedFields = [configGlobal.file_id, configGlobal.studyCode, configGlobal.studyName];
         const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
 
         const newFiles = withFamily
             ? await getFamilyIds(
                   es,
-                  files?.map(f => f.file_id),
+                  files?.map(f => f[configGlobal.file_id]),
               )
             : files;
 
         const filesInfosData: IFileByStudy[] = [];
         for (const file of newFiles) {
-            const filesFound = files.filter(({ study: { study_code } }) => study_code === file.study?.study_code);
-            if (!filesInfosData.find(f => f.key === file.study?.study_code)) {
+            const filesFound = files.filter(f => f[configGlobal.studyCode] === file[configGlobal.studyCode]);
+            if (!filesInfosData.find(f => f.key === file[configGlobal.studyCode])) {
                 filesInfosData.push({
-                    key: file.study?.study_code,
-                    study_name: file.study?.name || file.study?.study_code,
+                    key: file[configGlobal.studyCode],
+                    study_name: file[configGlobal.studyName] || file[configGlobal.studyCode],
                     nb_files: filesFound.length,
                 });
             }
