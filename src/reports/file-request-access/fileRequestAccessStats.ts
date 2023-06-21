@@ -40,11 +40,15 @@ const fileRequestAccessStats = () => async (req: Request, res: Response): Promis
 
         const filesInfosData: IFileByStudy[] = [];
         for (const file of newFiles) {
-            const filesFound = files.filter(f => f[configGlobal.studyCode] === file[configGlobal.studyCode]);
-            if (!filesInfosData.find(f => f.key === file[configGlobal.studyCode])) {
+            const filesFound = files.filter(
+                f =>
+                    f[configGlobal.study][configGlobal.study_code] ===
+                    file[configGlobal.study][configGlobal.study_code],
+            );
+            if (!filesInfosData.find(f => f.key === file[configGlobal.study][configGlobal.study_code])) {
                 filesInfosData.push({
-                    key: file[configGlobal.studyCode],
-                    study_name: file[configGlobal.studyName] || file[configGlobal.studyCode],
+                    key: file[configGlobal.study][configGlobal.study_code],
+                    study_name: file[configGlobal.study][configGlobal.name],
                     nb_files: filesFound.length,
                 });
             }
