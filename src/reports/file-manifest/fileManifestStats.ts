@@ -51,10 +51,16 @@ const fileManifestStats = () => async (req: Request, res: Response): Promise<voi
         for (const file of newFiles) {
             const filesFound = files.filter(f => f[configGlobal.data_type] === file[configGlobal.data_type]);
             if (!filesInfosData.find(f => f.value === file[configGlobal.data_type])) {
+                const participantIds = [];
+                for (const fileFound of filesFound) {
+                    participantIds.push(...fileFound[configGlobal.participants].map(p => p.participant_id));
+                }
+                const participantIdsUniq = [...new Set(participantIds)];
+                const nb_participants = participantIdsUniq.length;
                 filesInfosData.push({
                     key: file[configGlobal.data_type],
                     value: file[configGlobal.data_type],
-                    nb_participants: filesFound.reduce((a, b) => a + (b ? b[configGlobal.participants]?.length : 0), 0),
+                    nb_participants,
                     nb_files: filesFound.length,
                     size: filesFound.reduce((a, b) => a + (b ? b[configGlobal.file_size] : 0), 0),
                 });
