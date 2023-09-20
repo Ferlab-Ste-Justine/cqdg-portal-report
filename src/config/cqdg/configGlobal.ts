@@ -2,6 +2,7 @@ const configGlobal = {
     participant_id: 'participant_id',
     family_id: 'family_id',
     file_id: 'file_id',
+    ferload_url: 'ferload_url',
     data_type: 'data_type',
     file_size: 'file_size',
     file_name: 'file_name',
