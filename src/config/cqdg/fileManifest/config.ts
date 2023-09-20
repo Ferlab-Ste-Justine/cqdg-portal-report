@@ -5,6 +5,7 @@ const config: SheetConfig = {
     sheetName: 'Files',
     root: 'file',
     columns: [
+        { field: 'ferload_url', header: 'url' },
         { field: 'file_id', header: 'File ID' },
         { field: 'file_name', header: 'File Name' },
         { field: 'file_size', header: 'File Size', transform: value => formatFileSize(value, { output: 'string' }) },
