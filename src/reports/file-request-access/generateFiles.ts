@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { IStudyInfos } from './getStudiesInfos';
 
-const generateFiles = async (studyInfos: IStudyInfos[]): Promise<void[]> => {
+const generateFiles = async (studyInfos: IStudyInfos[], withoutFiles: boolean): Promise<void[]> => {
     // Define the content of the README files
     // eslint-disable-next-line max-len
     const readmeEnContent = `Access.tsv document provides information about permitted data use purposes and conditions, mainly focused on research uses of data. "access_limitations" and "access_requirements" terms in the access.tsv file describe generic conditions for which datasets from each study you have selected for your research may be used. Please note that conditions may vary between studies or between some datasets within a study. We recommend that you review the conditions and ensure you are able to comply with these prior to requesting access to the data.\n\nStudy.tsv document provides a full list of all files you are requesting for each study. These files may be used in your access request. It is the requestor's responsibility to contact the Access authority and/or directly request access to data from these studies.`;
@@ -15,15 +15,20 @@ const generateFiles = async (studyInfos: IStudyInfos[]): Promise<void[]> => {
         fs.writeFileSync('/tmp/README_FR.txt', readmeFrContent),
     ];
 
-    // Define the content of the study TSV file, add file for each study found
-    for (const studyInfo of studyInfos) {
-        let studyTsvContent = `Study Name\tSubmitter Participant ID\tParticipant ID\tFile Name\tData Type\tFormat\n`;
-        for (const file of studyInfo.files) {
-            // eslint-disable-next-line max-len
-            studyTsvContent += `${file.study_name}\t${file.submitter_participant_ids}\t${file.participant_ids}\t${file.file_name}\t${file.data_type}\t${file.file_format}\n`;
+    console.log('withoutFiles', withoutFiles);
+
+    if (!withoutFiles) {
+        console.log('iinnnn');
+        // Define the content of the study TSV file, add file for each study found
+        for (const studyInfo of studyInfos) {
+            let studyTsvContent = `Study Name\tSubmitter Participant ID\tParticipant ID\tFile Name\tData Type\tFormat\n`;
+            for (const file of studyInfo.files) {
+                // eslint-disable-next-line max-len
+                studyTsvContent += `${file.study_name}\t${file.submitter_participant_ids}\t${file.participant_ids}\t${file.file_name}\t${file.data_type}\t${file.file_format}\n`;
+            }
+            // Add to promises array
+            createFilesSync.push(fs.writeFileSync(`/tmp/${studyInfo.study_code}.tsv`, studyTsvContent));
         }
-        // Add to promises array
-        createFilesSync.push(fs.writeFileSync(`/tmp/${studyInfo.study_code}.tsv`, studyTsvContent));
     }
 
     // Define the content of the access TSV file, add row in file for each study found

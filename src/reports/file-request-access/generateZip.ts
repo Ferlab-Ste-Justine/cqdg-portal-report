@@ -2,10 +2,18 @@ import tar from 'tar';
 
 import { IStudyInfos } from './getStudiesInfos';
 
-const generateZip = async (studyInfos: IStudyInfos[], fileName: string, path: string): Promise<void> => {
+const generateZip = async (
+    studyInfos: IStudyInfos[],
+    fileName: string,
+    path: string,
+    withoutFiles: boolean,
+): Promise<void> => {
     const fileNames: string[] = ['README_EN.txt', 'README_FR.txt', 'access.tsv'];
-    for (const studyInfo of studyInfos) {
-        fileNames.push(`${studyInfo.study_code}.tsv`);
+
+    if (!withoutFiles) {
+        for (const studyInfo of studyInfos) {
+            fileNames.push(`${studyInfo.study_code}.tsv`);
+        }
     }
 
     await tar.create(
