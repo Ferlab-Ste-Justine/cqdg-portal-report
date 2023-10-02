@@ -2,7 +2,7 @@ import fs from 'fs';
 
 import { IStudyInfos } from './getStudiesInfos';
 
-const generateFiles = async (studyInfos: IStudyInfos[], withoutFiles: boolean): Promise<void[]> => {
+const generateFiles = async (studyInfos: IStudyInfos[], folderPath: string, withoutFiles: boolean): Promise<void[]> => {
     // Define the content of the README files
     // eslint-disable-next-line max-len
     const readmeEnContent = `Access.tsv document provides information about permitted data use purposes and conditions, mainly focused on research uses of data. "access_limitations" and "access_requirements" terms in the access.tsv file describe generic conditions for which datasets from each study you have selected for your research may be used. Please note that conditions may vary between studies or between some datasets within a study. We recommend that you review the conditions and ensure you are able to comply with these prior to requesting access to the data.\n\nStudy.tsv document provides a full list of all files you are requesting for each study. These files may be used in your access request. It is the requestor's responsibility to contact the Access authority and/or directly request access to data from these studies.`;
@@ -11,8 +11,8 @@ const generateFiles = async (studyInfos: IStudyInfos[], withoutFiles: boolean): 
 
     // Define the array of promises to create the files all together
     const createFilesSync = [
-        fs.writeFileSync('/tmp/README_EN.txt', readmeEnContent),
-        fs.writeFileSync('/tmp/README_FR.txt', readmeFrContent),
+        fs.writeFileSync(`${folderPath}/README_EN.txt`, readmeEnContent),
+        fs.writeFileSync(`${folderPath}/README_FR.txt`, readmeFrContent),
     ];
 
     if (!withoutFiles) {
@@ -24,7 +24,7 @@ const generateFiles = async (studyInfos: IStudyInfos[], withoutFiles: boolean): 
                 studyTsvContent += `${file.study_name}\t${file.submitter_participant_ids}\t${file.participant_ids}\t${file.file_name}\t${file.data_type}\t${file.file_format}\n`;
             }
             // Add to promises array
-            createFilesSync.push(fs.writeFileSync(`/tmp/${studyInfo.study_code}.tsv`, studyTsvContent));
+            createFilesSync.push(fs.writeFileSync(`${folderPath}/${studyInfo.study_code}.tsv`, studyTsvContent));
         }
     }
 
@@ -33,7 +33,7 @@ const generateFiles = async (studyInfos: IStudyInfos[], withoutFiles: boolean): 
     for (const studyInfo of studyInfos) {
         accessTsvContent += `${studyInfo.study_name}\t${studyInfo.access_limitations}\t${studyInfo.access_requirements}\t${studyInfo.access_authority}\n`;
     }
-    createFilesSync.push(fs.writeFileSync(`/tmp/access.tsv`, accessTsvContent));
+    createFilesSync.push(fs.writeFileSync(`${folderPath}/access.tsv`, accessTsvContent));
 
     // Then execute to create the files
     return Promise.all(createFilesSync);

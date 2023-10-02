@@ -20,8 +20,8 @@ const generateZip = async (
         {
             gzip: true, // enable gzip compression
             portable: true, // use relative paths only
-            cwd: '/tmp/', // set the current working directory to the script directory
-            file: path, // set the output file
+            cwd: path, // set the current working directory to the script directory
+            file: `${path}/${fileName}`, // set the output file
             sync: true, // use synchronous file operations
         },
         // list of files to include in the tar stream
