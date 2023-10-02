@@ -15,10 +15,7 @@ const generateFiles = async (studyInfos: IStudyInfos[], withoutFiles: boolean): 
         fs.writeFileSync('/tmp/README_FR.txt', readmeFrContent),
     ];
 
-    console.log('withoutFiles', withoutFiles);
-
     if (!withoutFiles) {
-        console.log('iinnnn');
         // Define the content of the study TSV file, add file for each study found
         for (const studyInfo of studyInfos) {
             let studyTsvContent = `Study Name\tSubmitter Participant ID\tParticipant ID\tFile Name\tData Type\tFormat\n`;
