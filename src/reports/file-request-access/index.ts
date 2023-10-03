@@ -1,10 +1,10 @@
 import { Client } from '@elastic/elasticsearch';
 import { Request, Response } from 'express';
-import fs from 'fs';
 
 import getConfigGlobal from '../../config';
 import { ES_HOST, ES_PWD, ES_USER, PROJECT } from '../../config/env';
 import { reportGenerationErrorHandler } from '../../utils/errors';
+import { cleanTmpFolder, createTmpFolder } from '../../utils/tmpFolderUtils';
 import getFamilyIds from '../utils/getFamilyIds';
 import getFilesFromSqon from '../utils/getFilesFromSqon';
 import generateFiles from './generateFiles';
@@ -34,18 +34,11 @@ const fileRequestAccess = () => async (req: Request, res: Response): Promise<voi
 
         const fileName = `${PROJECT}-access-request.tar.gz`;
 
-        /** create tmp folder to clean it after process */
-        const randomString = Math.random()
-            .toString(36)
-            .substring(2, 15);
-        const folderPath = `/tmp/${randomString}`;
-        await fs.mkdirSync(folderPath);
-
+        const folderPath = await createTmpFolder();
         await generateFiles(studyInfos, folderPath, withoutFiles);
         await generateZip(studyInfos, fileName, folderPath, withoutFiles);
 
-        const cleanFolder = () => fs.rmSync(folderPath, { recursive: true, force: true });
-        await res.download(`${folderPath}/${fileName}`, fileName, cleanFolder);
+        res.download(`${folderPath}/${fileName}`, fileName, () => cleanTmpFolder(folderPath));
         es.close();
     } catch (err) {
         reportGenerationErrorHandler(err, es);

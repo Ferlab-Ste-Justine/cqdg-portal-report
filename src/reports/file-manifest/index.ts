@@ -1,9 +1,9 @@
 import { Client } from '@elastic/elasticsearch';
 import { Request, Response } from 'express';
-import fs from 'fs';
 
 import { ES_HOST, ES_PWD, ES_USER, esFileIndex } from '../../config/env';
 import { reportGenerationErrorHandler } from '../../utils/errors';
+import { cleanTmpFolder, createTmpFolder } from '../../utils/tmpFolderUtils';
 import generateTsvReport from '../utils/generateTsvReport';
 import getFamilyIds from '../utils/getFamilyIds';
 import getFilesFromSqon from '../utils/getFilesFromSqon';
@@ -37,18 +37,12 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
             esFileIndex,
         );
 
-        /** create tmp folder to clean it after process */
-        const randomString = Math.random()
-            .toString(36)
-            .substring(2, 15);
-        const folderPath = `/tmp/${randomString}`;
-        await fs.mkdirSync(folderPath);
+        const folderPath = await createTmpFolder();
         const tsvPath = `${folderPath}/${filename}.tsv`;
 
         await generateTsvReport(filesInfos, tsvPath, configFileManifest);
 
-        const cleanFolder = () => fs.rmSync(folderPath, { recursive: true, force: true });
-        await res.download(`${folderPath}/${filename}.tsv`, `${filename}.tsv`, cleanFolder);
+        await res.download(`${folderPath}/${filename}.tsv`, `${filename}.tsv`, () => cleanTmpFolder(folderPath));
         es.close();
     } catch (err) {
         reportGenerationErrorHandler(err, es);
