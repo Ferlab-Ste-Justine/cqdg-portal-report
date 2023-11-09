@@ -54,7 +54,7 @@ const participants: SheetConfig = {
 
 const phenotypes: SheetConfig = {
     sheetName: 'Phenotypes',
-    root: 'phenotype',
+    root: 'phenotypes_tagged',
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
         { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
@@ -78,45 +78,23 @@ const phenotypes: SheetConfig = {
             },
         },
         {
-            field: 'observed_phenotype_tagged.name',
-            additionalFields: ['non_observed_phenotype_tagged.name'],
+            field: 'phenotypes_tagged',
             header: 'Phenotype (HPO)',
-            transform: (value, row) => {
-                if (!row || (!row.observed_phenotype_tagged?.name && !row.non_observed_phenotype_tagged?.name)) {
-                    return;
-                }
-                return value || row.non_observed_phenotype_tagged.name;
-            },
+            transform: (values: { name: string }) => values?.name,
         },
         {
-            field: 'observed_phenotype_tagged.source_text',
-            additionalFields: ['non_observed_phenotype_tagged.source_text'],
+            field: 'phenotypes_tagged.source_text',
             header: 'Phenotype (Source Text)',
-            transform: (value, row) => {
-                if (
-                    !row ||
-                    (!row.observed_phenotype_tagged?.source_text && !row.non_observed_phenotype_tagged?.source_text)
-                ) {
-                    return;
-                }
-                return value || row.non_observed_phenotype_tagged.name;
-            },
         },
         {
-            field: 'observed_phenotype_tagged.name',
-            additionalFields: ['non_observed_phenotype_tagged.name'],
+            field: 'phenotypes_tagged.is_observed',
             header: 'Interpretation',
-            transform: (value: string, row) => {
-                if (value) {
-                    return value;
-                } else {
-                    if (row.non_observed_phenotype_tagged) {
-                        return 'Not Observed';
-                    }
-                }
+            transform: (observed: boolean | null) => {
+                if (!observed) return;
+                return observed ? 'Observed' : 'Not Observed';
             },
         },
-        { field: 'observed_phenotype_tagged.age_at_event', header: 'Age at Phenotype (Days)' },
+        { field: 'phenotypes_tagged.age_at_event', header: 'Age at Phenotype (Days)' },
     ],
     sort: [
         {
@@ -130,12 +108,7 @@ const phenotypes: SheetConfig = {
             },
         },
         {
-            'observed_phenotype_tagged.age_at_event': {
-                order: 'desc',
-            },
-        },
-        {
-            'non_observed_phenotype_tagged.age_at_event': {
+            'phenotypes_tagged.age_at_event': {
                 order: 'desc',
             },
         },
