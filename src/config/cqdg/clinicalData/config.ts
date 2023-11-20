@@ -36,7 +36,7 @@ const participants: SheetConfig = {
         { field: 'ethnicity' },
         { field: 'vital_status', header: 'Vital Status' },
         { field: 'is_affected', header: 'Affected Status' },
-        { field: 'age_at_recruitment', header: 'Age at Recruitment (Days)' },
+        { field: 'age_at_recruitment', header: 'Age at Recruitment' },
     ],
     sort: [
         {
@@ -89,7 +89,7 @@ const phenotypes: SheetConfig = {
                 return observed ? 'Observed' : 'Not Observed';
             },
         },
-        { field: 'phenotypes_tagged.age_at_event', header: 'Age at Phenotype (Days)' },
+        { field: 'phenotypes_tagged.age_at_event', header: 'Age at Phenotype' },
     ],
     sort: [
         {
@@ -138,7 +138,7 @@ const diagnoses: SheetConfig = {
         { field: 'mondo_tagged.name', header: 'Diagnosis (MONDO)' },
         { field: 'icd_tagged.name', header: 'Diagnosis (ICD)' },
         { field: 'diagnoses.diagnosis_source_text', header: 'Diagnosis (Source Text)' },
-        { field: 'diagnoses.age_at_diagnosis', header: 'Age at Diagnosis (Days)' },
+        { field: 'diagnoses.age_at_diagnosis', header: 'Age at Diagnosis' },
     ],
     sort: [
         {
