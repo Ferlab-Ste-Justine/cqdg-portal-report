@@ -1,4 +1,5 @@
 import { QueryConfig, ReportConfig, SheetConfig } from '../../../reports/types';
+import getAgeCategory from '../../../reports/utils/getAgeCategory';
 
 const biospecimens: SheetConfig = {
     sheetName: 'Biospecimens',
@@ -17,6 +18,7 @@ const biospecimens: SheetConfig = {
         {
             field: 'age_biospecimen_collection',
             header: 'Age at Biospecimen Collection',
+            transform: value => getAgeCategory(value),
         },
     ],
     sort: [
