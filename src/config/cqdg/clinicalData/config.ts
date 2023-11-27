@@ -1,4 +1,6 @@
 import { QueryConfig, ReportConfig, SheetConfig } from '../../../reports/types';
+import getAgeCategory from '../../../reports/utils/getAgeCategory';
+import getConfigGlobal from '../../index';
 
 const participants: SheetConfig = {
     sheetName: 'Participants',
@@ -36,7 +38,11 @@ const participants: SheetConfig = {
         { field: 'ethnicity' },
         { field: 'vital_status', header: 'Vital Status' },
         { field: 'is_affected', header: 'Affected Status' },
-        { field: 'age_at_recruitment', header: 'Age at Recruitment' },
+        {
+            field: 'age_at_recruitment',
+            header: 'Age at Recruitment',
+            transform: value => getAgeCategory(value),
+        },
     ],
     sort: [
         {
@@ -89,7 +95,11 @@ const phenotypes: SheetConfig = {
                 return observed ? 'Observed' : 'Not Observed';
             },
         },
-        { field: 'phenotypes_tagged.age_at_event', header: 'Age at Phenotype' },
+        {
+            field: 'phenotypes_tagged.age_at_event',
+            header: 'Age at Phenotype',
+            transform: value => getAgeCategory(value),
+        },
     ],
     sort: [
         {
@@ -138,7 +148,11 @@ const diagnoses: SheetConfig = {
         { field: 'mondo_tagged.name', header: 'Diagnosis (MONDO)' },
         { field: 'icd_tagged.name', header: 'Diagnosis (ICD)' },
         { field: 'diagnoses.diagnosis_source_text', header: 'Diagnosis (Source Text)' },
-        { field: 'diagnoses.age_at_diagnosis', header: 'Age at Diagnosis' },
+        {
+            field: 'diagnoses.age_at_diagnosis',
+            header: 'Age at Diagnosis',
+            transform: value => getAgeCategory(value),
+        },
     ],
     sort: [
         {

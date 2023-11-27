@@ -1,6 +1,5 @@
 import { Client } from '@elastic/elasticsearch';
 import { Request, Response } from 'express';
-import { inspect } from 'util';
 
 import { ES_HOST, ES_PWD, ES_USER } from '../../config/env';
 import { normalizeConfigs } from '../../utils/configUtils';
