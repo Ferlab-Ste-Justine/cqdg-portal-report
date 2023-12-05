@@ -1,6 +1,5 @@
 import { QueryConfig, ReportConfig, SheetConfig } from '../../../reports/types';
 import getAgeCategory from '../../../reports/utils/getAgeCategory';
-import getConfigGlobal from '../../index';
 
 const participants: SheetConfig = {
     sheetName: 'Participants',

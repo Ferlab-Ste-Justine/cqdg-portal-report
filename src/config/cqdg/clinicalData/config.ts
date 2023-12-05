@@ -1,6 +1,5 @@
 import { QueryConfig, ReportConfig, SheetConfig } from '../../../reports/types';
 import getAgeCategory from '../../../reports/utils/getAgeCategory';
-import getConfigGlobal from '../../index';
 
 const participants: SheetConfig = {
     sheetName: 'Participants',
@@ -151,7 +150,7 @@ const diagnoses: SheetConfig = {
         {
             field: 'diagnoses.age_at_diagnosis',
             header: 'Age at Diagnosis',
-            transform: value => getAgeCategory(value),
+            transform: values => getAgeCategory(values?.[0] || ''),
         },
     ],
     sort: [
