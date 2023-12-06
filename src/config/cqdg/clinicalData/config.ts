@@ -80,7 +80,7 @@ const phenotypes: SheetConfig = {
         {
             field: 'phenotypes_tagged',
             header: 'Phenotype (HPO)',
-            transform: (values: { name: string }) => values?.name,
+            transform: (value: { name: string }) => value?.name,
         },
         {
             field: 'phenotypes_tagged.source_text',

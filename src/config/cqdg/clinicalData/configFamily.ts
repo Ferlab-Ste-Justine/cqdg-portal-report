@@ -152,7 +152,11 @@ const diagnoses: SheetConfig = {
         { field: 'mondo_tagged.name', header: 'Diagnosis (MONDO)' },
         { field: 'icd_tagged.name', header: 'Diagnosis (ICD)' },
         { field: 'diagnoses.diagnosis_source_text', header: 'Diagnosis (Source Text)' },
-        { field: 'diagnoses.age_at_diagnosis', header: 'Age at Diagnosis', transform: value => getAgeCategory(value) },
+        {
+            field: 'diagnoses.age_at_diagnosis',
+            header: 'Age at Diagnosis',
+            transform: values => getAgeCategory(values?.[0] || ''),
+        },
     ],
     sort: [
         {
