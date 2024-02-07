@@ -186,7 +186,7 @@ const familyRelationship: SheetConfig = {
             field: 'submitter_participant_id',
             header: 'Submitter Participant ID',
             additionalFields: ['family_relationships.submitter_participant_id'],
-            transform: (values, row) => row?.family_relationships.submitter_participant_id,
+            transform: (values, row) => row?.family_relationships?.submitter_participant_id,
         },
         { field: 'family_relationships.family_id', header: 'Family ID' },
         { field: 'family_relationships.submitter_family_id', header: 'Submitter Family ID' },
