@@ -10,7 +10,6 @@ export const ES_HOST = process.env.ES_HOST || 'localhost:9200';
 export const ES_USER = process.env.ES_USER;
 export const ES_PWD = process.env.ES_PASS;
 // ElasticSearch queries parameters
-export const ES_PAGESIZE: number = Number(process.env.ES_PAGESIZE) || 1000;
 export const ES_QUERY_MAX_SIZE: number = Number(process.env.ES_QUERY_MAX_SIZE) || 10000;
 
 // Project (this is not the arranger project id)

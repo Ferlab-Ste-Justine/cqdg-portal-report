@@ -6,6 +6,7 @@ import flattenDeep from 'lodash/flattenDeep';
 import uniq from 'lodash/uniq';
 
 import * as env from '../../config/env';
+import { ES_QUERY_MAX_SIZE } from '../../config/env';
 import {
     findValueInField,
     generateColumnsForProperty,
@@ -150,7 +151,7 @@ export default async function generateExcelReport(
                         });
                     },
                     onFinish: () => {},
-                    pageSize: env.ES_PAGESIZE,
+                    pageSize: env.ES_QUERY_MAX_SIZE,
                 });
                 console.timeEnd(`executeSearchAfterQuery ${sheetConfig.sheetName}`);
             } catch (err) {
