@@ -5,7 +5,8 @@ const config: SheetConfig = {
     sheetName: 'Files',
     root: 'file',
     columns: [
-        { field: 'ferload_url', header: 'url' },
+        // ferload_url and file_hash are tmp hidden by CQDG-619 before ferload is ready for production
+        // { field: 'ferload_url', header: 'url' },
         { field: 'file_id', header: 'File ID' },
         { field: 'file_name', header: 'File Name' },
         { field: 'file_size', header: 'File Size', transform: value => formatFileSize(value, { output: 'string' }) },
@@ -13,7 +14,7 @@ const config: SheetConfig = {
         { field: 'data_type', header: 'Data Type' },
         { field: 'file_format', header: 'File Format' },
         { field: 'sequencing_experiment.experimental_strategy', header: 'Experimental Strategy' },
-        { field: 'file_hash', header: 'Hash' },
+        // { field: 'file_hash', header: 'Hash' },
         { field: 'study.name', header: 'Study Name' },
         { field: 'participants.participant_id', header: 'Participant ID' },
         { field: 'biospecimens.sample_id', header: 'Sample ID' },
