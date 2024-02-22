@@ -6,6 +6,7 @@ import { normalizeConfigs } from '../../utils/configUtils';
 import { reportGenerationErrorHandler } from '../../utils/errors';
 import generateExcelReport from '../utils/generateExcelReport';
 import generateFamilySqon from './generateFamilySqon';
+import generatePtSqonWithRelativesIfExist from './generatePtSqonWithRelativesIfExist';
 import getConfig from './getConfig';
 
 const clinicalDataReport = () => async (req: Request, res: Response): Promise<void> => {
@@ -30,7 +31,7 @@ const clinicalDataReport = () => async (req: Request, res: Response): Promise<vo
         const normalizedConfigs = await normalizeConfigs(es, projectId, reportConfigs);
 
         const newSqon = withFamily
-            ? await generateFamilySqon(es, projectId, sqon, normalizedConfigs, userId, accessToken)
+            ? await generatePtSqonWithRelativesIfExist(es, projectId, sqon, normalizedConfigs, userId, accessToken)
             : sqon;
 
         // Generate the report

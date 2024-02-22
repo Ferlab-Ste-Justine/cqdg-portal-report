@@ -47,13 +47,21 @@ const generateFamilySqon = async (
         : [];
     const familyIds = buckets.map(b => b.key);
 
-    return {
+    /** no family found, then no sqon edit */
+    if (!familyIds?.length) return newSqon;
+
+    const sqonWithFamilies = {
         op: 'or',
-        content: [
-            { op: 'in', content: { field: configGlobal.family_id, value: familyIds } },
-            { op: 'in', content: { field: configGlobal.participant_id, value: participantIds } },
-        ],
+        content: [{ op: 'in', content: { field: configGlobal.family_id, value: familyIds } }],
     };
+    if (participantIds?.length) {
+        sqonWithFamilies.content.push({
+            op: 'in',
+            content: { field: configGlobal.participant_id, value: participantIds },
+        });
+    }
+
+    return sqonWithFamilies;
 };
 
 export default generateFamilySqon;
