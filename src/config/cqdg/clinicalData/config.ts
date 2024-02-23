@@ -33,7 +33,7 @@ const participants: SheetConfig = {
             header: 'Family Type',
             transform: values => (values ? [...new Set(values)] : []),
         },
-        { field: 'gender' },
+        { field: 'sex' },
         { field: 'ethnicity' },
         { field: 'vital_status', header: 'Vital Status' },
         { field: 'is_affected', header: 'Affected Status' },
