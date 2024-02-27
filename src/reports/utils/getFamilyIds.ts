@@ -26,8 +26,8 @@ const getFilesInfo = async (fileIds: string[], es: Client): Promise<IFileInfo[]>
     const hits = results?.body?.hits?.hits || [];
     const sources = hits.map(hit => hit._source);
     const filesInfos = [];
-    sources.forEach(source => {
-        source[configGlobal.participants].forEach(participant => {
+    sources?.forEach(source => {
+        source[configGlobal.participants]?.forEach(participant => {
             if (
                 participant[configGlobal.family_id] &&
                 !filesInfos.find(
