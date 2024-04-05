@@ -25,7 +25,7 @@ const generateFiles = async (studyInfos: IStudyInfos[], folderPath: string, with
     if (!withoutFiles) {
         // Define the content of the study TSV file, add file for each study found
         for (const studyInfo of studyInfos) {
-            let studyTsvContent = `Study Name\tSubmitter Participant ID\tParticipant ID\tFile Name\tData Type\tFormat\n`;
+            let studyTsvContent = `Study Name\tExternal Participant ID\tParticipant ID\tFile Name\tData Type\tFormat\n`;
             for (const file of studyInfo.files) {
                 // eslint-disable-next-line max-len
                 studyTsvContent += `${file.study_name}\t${file.submitter_participant_ids}\t${file.participant_ids}\t${file.file_name}\t${file.data_type}\t${file.file_format}\n`;

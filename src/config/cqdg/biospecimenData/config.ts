@@ -6,14 +6,14 @@ const biospecimens: SheetConfig = {
     root: 'files.biospecimens',
     columns: [
         { field: 'participant.participant_id', header: 'Participant ID' },
-        { field: 'participant.submitter_participant_id', header: 'Submitter Participant ID' },
+        { field: 'participant.submitter_participant_id', header: 'External Participant ID' },
         { field: 'study.name', header: 'Study Name' },
         { field: 'study.study_code', header: 'Study Code' },
         { field: 'sample_id', header: 'Sample ID' },
-        { field: 'submitter_sample_id', header: 'Submitter Sample ID' },
+        { field: 'submitter_sample_id', header: 'External Sample ID' },
         { field: 'sample_type', header: 'Sample Type' },
         { field: 'biospecimen_id', header: 'Biospecimen ID' },
-        { field: 'submitter_biospecimen_id', header: 'Submitter Biospecimen ID' },
+        { field: 'submitter_biospecimen_id', header: 'External Biospecimen ID' },
         { field: 'biospecimen_tissue_source', header: 'Biospecimen Tissue Source' },
         {
             field: 'age_biospecimen_collection',
