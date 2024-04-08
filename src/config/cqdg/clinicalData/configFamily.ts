@@ -6,7 +6,7 @@ const participants: SheetConfig = {
     root: null,
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
-        { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
+        { field: 'submitter_participant_id', header: 'External Participant ID' },
         {
             field: 'family_relationships.family_id',
             header: 'Family ID',
@@ -14,7 +14,7 @@ const participants: SheetConfig = {
         },
         {
             field: 'family_relationships.submitter_family_id',
-            header: 'Submitter Family ID',
+            header: 'External Family ID',
             transform: values => (values ? [...new Set(values)] : []),
         },
         {
@@ -62,7 +62,7 @@ const phenotypes: SheetConfig = {
     root: 'phenotypes_tagged',
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
-        { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
+        { field: 'submitter_participant_id', header: 'External Participant ID' },
         {
             field: 'family_relationships.family_id',
             header: 'Family ID',
@@ -70,7 +70,7 @@ const phenotypes: SheetConfig = {
         },
         {
             field: 'family_relationships.submitter_family_id',
-            header: 'Submitter Family ID',
+            header: 'External Family ID',
             transform: values => (values ? [...new Set(values)] : []),
         },
         {
@@ -129,7 +129,7 @@ const diagnoses: SheetConfig = {
     root: 'diagnosis',
     columns: [
         { field: 'participant_id', header: 'Participant ID' },
-        { field: 'submitter_participant_id', header: 'Submitter Participant ID' },
+        { field: 'submitter_participant_id', header: 'External Participant ID' },
         {
             field: 'family_relationships.family_id',
             header: 'Family ID',
@@ -137,7 +137,7 @@ const diagnoses: SheetConfig = {
         },
         {
             field: 'family_relationships.submitter_family_id',
-            header: 'Submitter Family ID',
+            header: 'External Family ID',
             transform: values => (values ? [...new Set(values)] : []),
         },
         {
