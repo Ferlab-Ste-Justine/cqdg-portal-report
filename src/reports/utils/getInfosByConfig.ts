@@ -15,26 +15,9 @@ const getValueRecursive = (file, fieldSplitedByDot, i = 0) => {
     return file[parent].map(e => e[child])?.join(', ');
 };
 
-/** generic function to prepare { key: value }[] from a config ES search friendly */
-const getInfosByConfig = async (
-    es: Client,
-    config: SheetConfig,
-    ids: string[],
-    idField: string,
-    esIndex: string,
-    extraFields?: string[],
-): Promise<{ key: string }[]> => {
-    const esRequest = {
-        query: { bool: { must: [{ terms: { [idField]: ids, boost: 0 } }] } },
-        _source: [...config.columns.map(e => e.field), ...(extraFields || [])],
-        sort: config.sort,
-        size: ES_QUERY_MAX_SIZE,
-    };
-    const results = await executeSearch(es, esIndex, esRequest);
-    const hits = results?.body?.hits?.hits || [];
-    const sources = hits.map(hit => hit._source);
-    const infos: { key: string }[] = sources.map(source =>
-        config.columns
+const getFilesInfo = (configColumns, sources): { key: string }[] =>
+    sources.map(source =>
+        configColumns
             .map(column => {
                 const field = column.field;
                 /** default case example: field = 'file_id' */
@@ -57,7 +40,30 @@ const getInfosByConfig = async (
             .reduce((a, b) => Object.assign(a, b), {}),
     );
 
-    return infos;
+/** generic function to prepare { key: value }[] from a config ES search friendly */
+const getInfosByConfig = async (
+    es: Client,
+    config: SheetConfig,
+    ids: string[],
+    idField: string,
+    esIndex: string,
+    extraFields?: string[],
+): Promise<{ filesInfos: { key: string }[]; filesInfosWithExtraFields: { key: string }[] }> => {
+    const esRequest = {
+        query: { bool: { must: [{ terms: { [idField]: ids, boost: 0 } }] } },
+        _source: [...config.columns.map(e => e.field), ...(extraFields || [])],
+        sort: config.sort,
+        size: ES_QUERY_MAX_SIZE,
+    };
+    const results = await executeSearch(es, esIndex, esRequest);
+    const hits = results?.body?.hits?.hits || [];
+    const sources = hits.map(hit => hit._source);
+    const configColumns = config.columns;
+    const configColumnsWithExtraFields = [...config.columns, ...(extraFields?.map(field => ({ field })) || [])];
+    const filesInfos = getFilesInfo(configColumns, sources);
+    const filesInfosWithExtraFields = getFilesInfo(configColumnsWithExtraFields, sources);
+
+    return { filesInfos, filesInfosWithExtraFields };
 };
 
 export default getInfosByConfig;
