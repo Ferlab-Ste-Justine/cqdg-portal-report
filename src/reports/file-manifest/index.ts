@@ -29,18 +29,24 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
         const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
         const fileIds = files?.map(f => f[configGlobal.file_id]);
         const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
-        const filesInfos = await getInfosByConfig(
+        const { filesInfos, filesInfosWithExtraFields } = await getInfosByConfig(
             es,
             configFileManifest,
             newFileIds,
             configGlobal.file_id,
             esFileIndex,
+            [
+                configGlobal.relates_to_file_id,
+                configGlobal.relates_to_file_name,
+                configGlobal.relates_to_file_format,
+                configGlobal.relates_to_file_size,
+            ],
         );
 
         const folderPath = await createTmpFolder();
         const tsvPath = `${folderPath}/${filename}.tsv`;
 
-        await generateTsvReport(filesInfos, tsvPath, configFileManifest);
+        await generateTsvReport(filesInfos, tsvPath, configFileManifest, filesInfosWithExtraFields);
 
         await res.download(`${folderPath}/${filename}.tsv`, `${filename}.tsv`, () => cleanTmpFolder(folderPath));
         es.close();
