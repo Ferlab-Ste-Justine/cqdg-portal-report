@@ -11,18 +11,17 @@ const generateTsvReport = async (
     dataWithExtraFields: { key: string }[],
 ): Promise<void> => {
     const configGlobal = getConfig();
-
     let tsvContent = config.columns.map(c => c.header).join('\t') + '\n';
 
     for (const row of data) {
         const values = config.columns.map(c => row[c.field]);
         tsvContent += values.join('\t') + '\n';
 
-        /** [CQDG-737] if the current file is a CRAM and has a CRAI sub-file then add new line for it */
-        /** first check in get back the file with extra infos in dataWithExtraFields */
+        /** [CQDG-737] if the current file is a CRAM and has a CRAI sub-file then add new line for it on the tsv */
+        /** first check and get back the file with extra relates_to infos in `dataWithExtraFields` because `data` contained the SheetConfig schema only */
         const fileFound = dataWithExtraFields.find(e => e[configGlobal.file_id] === row[configGlobal.file_id]);
-        /** then check if the file has a CRAI child in relates_to */
-        if (fileFound?.[configGlobal.relates_to_file_format] === 'CRAI') {
+        /** then check if the file has a child in relates_to */
+        if (fileFound?.[configGlobal.relates_to_file_format]) {
             /** copy the row but change the id, name, format and size */
             const craiRow = {
                 ...row,
