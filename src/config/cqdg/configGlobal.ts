@@ -7,7 +7,7 @@ const configGlobal = {
     file_size: 'file_size',
     file_name: 'file_name',
     file_format: 'file_format',
-    relates_to_file_id: 'relates_to.fhir_id',
+    relates_to_file_id: 'relates_to.file_id',
     relates_to_file_name: 'relates_to.file_name',
     relates_to_file_format: 'relates_to.file_format',
     relates_to_file_size: 'relates_to.file_size',
