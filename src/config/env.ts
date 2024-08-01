@@ -23,7 +23,7 @@ export const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'https://auth.qa.cqdg.fe
 export const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'CQDG';
 export const KEYCLOAK_CLIENT = process.env.KEYCLOAK_CLIENT || 'cqdg-client';
 
-export const RIFF_URL = process.env.RIFF_URL || 'https://riff-qa.kf-strides.org';
+export const USERS_API_URL = process.env.USERS_API_URL || 'https://users.qa.juno.cqdg.ferlab.bio';
 
 export enum Realm {
     INCLUDE = 'includedcc',

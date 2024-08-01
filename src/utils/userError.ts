@@ -1,11 +1,11 @@
-export class RiffError extends Error {
+export class UserApiError extends Error {
     public readonly status: number;
     public readonly details: unknown;
 
     constructor(status: number, details: unknown) {
-        super(`Riff returns status ${status}`);
-        Object.setPrototypeOf(this, RiffError.prototype);
-        this.name = RiffError.name;
+        super(`Users-API returns status ${status}`);
+        Object.setPrototypeOf(this, UserApiError.prototype);
+        this.name = UserApiError.name;
         this.status = status;
         this.details = details;
     }
