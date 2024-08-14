@@ -11,7 +11,7 @@ import getConfig from './getConfig';
 const biospecimenDataReport = () => async (req: Request, res: Response) => {
     console.time('biospecimenDataReport');
 
-    const { sqon, projectId, filename = null } = req.body;
+    const { sqon, filename = null } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 
@@ -26,10 +26,10 @@ const biospecimenDataReport = () => async (req: Request, res: Response) => {
         const config = getConfig();
 
         // decorate the configs with default values, values from arranger's project, etc...
-        const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(es, projectId, config);
+        const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(accessToken, config);
 
         // Generate the report
-        await generateExcelReport(es, res, projectId, sqon, filename, normalizedConfigs, userId, accessToken);
+        await generateExcelReport(es, res, sqon, filename, normalizedConfigs, userId, accessToken);
         es.close();
     } catch (err) {
         reportGenerationErrorHandler(err, es);

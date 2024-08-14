@@ -24,6 +24,7 @@ export const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'CQDG';
 export const KEYCLOAK_CLIENT = process.env.KEYCLOAK_CLIENT || 'cqdg-client';
 
 export const USERS_API_URL = process.env.USERS_API_URL || 'https://users.qa.juno.cqdg.ferlab.bio';
+export const WRAPPER_API_URL = process.env.WRAPPER_API_URL || 'https://wrapper-api.qa.juno.cqdg.ferlab.bio';
 
 export enum Realm {
     INCLUDE = 'includedcc',
