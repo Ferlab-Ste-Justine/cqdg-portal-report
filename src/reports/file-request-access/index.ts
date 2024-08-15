@@ -14,7 +14,7 @@ import getStudiesInfos from './getStudiesInfos';
 const fileRequestAccess = () => async (req: Request, res: Response): Promise<void> => {
     console.time('fileRequestAccess');
 
-    const { sqon, projectId, withFamily = false, withoutFiles = false } = req.body;
+    const { sqon, withFamily = false, withoutFiles = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 
@@ -27,7 +27,7 @@ const fileRequestAccess = () => async (req: Request, res: Response): Promise<voi
 
         const configGlobal = getConfigGlobal();
         const wantedFields = [configGlobal.file_id];
-        const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
+        const files = await getFilesFromSqon(es, sqon, userId, accessToken, wantedFields);
         const fileIds = files?.map(f => f[configGlobal.file_id]);
         const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
         const studyInfos = await getStudiesInfos(es, newFileIds);

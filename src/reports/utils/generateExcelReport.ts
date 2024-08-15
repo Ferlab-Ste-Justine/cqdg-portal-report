@@ -6,14 +6,13 @@ import flattenDeep from 'lodash/flattenDeep';
 import uniq from 'lodash/uniq';
 
 import * as env from '../../config/env';
-import { ES_QUERY_MAX_SIZE } from '../../config/env';
+import { executeSearchAfterQuery } from '../../utils/esUtils';
 import {
     findValueInField,
     generateColumnsForProperty,
     getExtendedConfigs,
     getNestedFields,
-} from '../../utils/arrangerUtils';
-import { executeSearchAfterQuery } from '../../utils/esUtils';
+} from '../../utils/extendedMappingUtils';
 import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 import ExtendedReportSheetConfigs from '../../utils/extendedReportSheetConfigs';
 import { Sqon } from '../../utils/setsTypes';
@@ -104,7 +103,6 @@ const getDefaultFilename = (): string => {
 export default async function generateExcelReport(
     es: Client,
     res: Response,
-    projectId: string,
     sqon: Sqon,
     filename: string,
     normalizedConfigs: ExtendedReportConfigs,
@@ -120,9 +118,9 @@ export default async function generateExcelReport(
             const ws = wb.addWorksheet(sheetConfig.sheetName);
 
             // prepare the ES query
-            console.time(`getExtendedConfigs-${projectId}-${sheetConfig.sheetName}`);
-            const extendedConfig = await getExtendedConfigs(es, projectId, normalizedConfigs.indexName);
-            console.timeEnd(`getExtendedConfigs-${projectId}-${sheetConfig.sheetName}`);
+            console.time(`getExtendedConfigs-${sheetConfig.sheetName}`);
+            const extendedConfig = await getExtendedConfigs(accessToken, normalizedConfigs.indexName);
+            console.timeEnd(`getExtendedConfigs-${sheetConfig.sheetName}`);
 
             const searchParams = await makeReportQuery(extendedConfig, sqon, sheetConfig, userId, accessToken);
             // add the header row

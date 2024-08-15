@@ -13,7 +13,7 @@ import getConfig from './getConfig';
 const fileManifestReport = () => async (req: Request, res: Response): Promise<void> => {
     console.time('fileManifestReport');
 
-    const { sqon, filename, projectId, withFamily = false } = req.body;
+    const { sqon, filename, withFamily = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 
@@ -26,7 +26,7 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
 
         const { fileManifest: configFileManifest, global: configGlobal } = getConfig();
         const wantedFields = [configGlobal.file_id];
-        const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
+        const files = await getFilesFromSqon(es, sqon, userId, accessToken, wantedFields);
         const fileIds = files?.map(f => f[configGlobal.file_id]);
         const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
         const { filesInfos, filesInfosWithExtraFields } = await getInfosByConfig(

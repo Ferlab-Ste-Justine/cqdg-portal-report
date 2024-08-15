@@ -1,6 +1,7 @@
+import fetch from 'node-fetch';
+
 import { USERS_API_URL } from '../config/env';
-import { Output } from './setsTypes';
-import { UserApiError } from './userError';
+import { Output } from '../utils/setsTypes';
 
 const SET_URI = `${USERS_API_URL}/user-sets`;
 
@@ -41,3 +42,16 @@ export const getSharedSet = async (accessToken: string, setId: string): Promise<
 
     throw new UserApiError(response.status, body);
 };
+
+export class UserApiError extends Error {
+    public readonly status: number;
+    public readonly details: unknown;
+
+    constructor(status: number, details: unknown) {
+        super(`Users-API returns status ${status}`);
+        Object.setPrototypeOf(this, UserApiError.prototype);
+        this.name = UserApiError.name;
+        this.status = status;
+        this.details = details;
+    }
+}

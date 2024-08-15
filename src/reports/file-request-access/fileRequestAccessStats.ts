@@ -16,7 +16,7 @@ interface IFileByStudy {
 const fileRequestAccessStats = () => async (req: Request, res: Response): Promise<void> => {
     console.time('getFileRequestAccessStats');
 
-    const { sqon, projectId, withFamily = false } = req.body;
+    const { sqon, withFamily = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 
@@ -29,7 +29,7 @@ const fileRequestAccessStats = () => async (req: Request, res: Response): Promis
 
         const configGlobal = getConfigGlobal();
         const wantedFields = [configGlobal.file_id, configGlobal.studyCode, configGlobal.studyName];
-        const files = await getFilesFromSqon(es, projectId, sqon, userId, accessToken, wantedFields);
+        const files = await getFilesFromSqon(es, sqon, userId, accessToken, wantedFields);
 
         const newFiles = withFamily
             ? await getFamilyIds(

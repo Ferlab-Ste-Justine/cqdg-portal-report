@@ -1,7 +1,7 @@
 import { Dictionary, flattenDeep, get, isArray, zipObject } from 'lodash';
 
+import { getSharedSet, getUserSets } from '../services/userApi';
 import { Output as UserSetOutput, Sqon } from './setsTypes';
-import { getSharedSet, getUserSets } from './userClient';
 
 export const resolveSetsInSqon = async (sqon: Sqon, userId: string, accessToken: string): Promise<Sqon> => {
     const setIds: string[] = getSetIdsFromSqon(sqon || ({} as Sqon));

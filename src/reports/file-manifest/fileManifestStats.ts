@@ -18,7 +18,7 @@ interface IFileByDataType {
 const fileManifestStats = () => async (req: Request, res: Response): Promise<void> => {
     console.time('getFileManifestStats');
 
-    const { sqon, projectId, withFamily = false } = req.body;
+    const { sqon, withFamily = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 
@@ -30,14 +30,7 @@ const fileManifestStats = () => async (req: Request, res: Response): Promise<voi
                 : new Client({ node: ES_HOST });
 
         const configGlobal = getConfig().global;
-        const files = await getFilesFromSqon(
-            es,
-            projectId,
-            sqon,
-            userId,
-            accessToken,
-            configGlobal.fileManifestWantedFields,
-        );
+        const files = await getFilesFromSqon(es, sqon, userId, accessToken, configGlobal.fileManifestWantedFields);
 
         const newFiles = withFamily
             ? await getFamilyIds(

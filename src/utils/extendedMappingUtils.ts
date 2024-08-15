@@ -1,7 +1,9 @@
 import flatten from 'lodash/flatten';
-import isPlainObject from 'lodash/isPlainObject';
 import isEmpty from 'lodash/isEmpty';
-import { Client } from '@elastic/elasticsearch';
+import isPlainObject from 'lodash/isPlainObject';
+
+import { PROJECT } from '../config/env';
+import { getExtendedMapping } from '../services/wrapperApi';
 
 type CacheElem = {
     key: string;
@@ -76,42 +78,14 @@ class AsyncCache {
 
 const internalCache = new AsyncCache();
 
-const generateCacheKey = (projectId: string, indexName: string):string => `${projectId} ${indexName}`;
-
-const fetchProject = (es: Client, projectId: string, indexName: string) => {
-    const key = generateCacheKey(projectId, indexName);
-
-    return es
-        .search({
-            index: `arranger-projects-${projectId}`,
-            q: `name:${indexName}`,
-        }) // eslint-disable-next-line no-underscore-dangle
-        .then(({ body }) => body.hits.hits.map(hit => hit._source))
-        .then(sources => sources.map(source => source.config.extended))
-        .then(extendedConfigs => {
-            if (extendedConfigs.length === 0) {
-                throw new Error(`Could not find project for "projectId: ${projectId}, indexName: ${indexName}"`);
-            }
-            if (extendedConfigs.length > 1) {
-                console.warn(
-                    `Found more than one config matching "projectId: ${projectId}, indexName: ${indexName}", picking the first one.`,
-                );
-            }
-            return extendedConfigs[0];
-        })
-        .catch(err => {
-            internalCache.remove(key);
-            console.error(`Error while fetching project for "projectId: ${projectId}, indexName: ${indexName}"`, err);
-            throw err;
-        });
-};
+const generateCacheKey = (projectId: string, indexName: string): string => `${projectId} ${indexName}`;
 
 /**
- * Get an arranger project's extended configs.
+ * Get an index extended configs.
  */
-export const getExtendedConfigs = async (es: Client, projectId: string, indexName: string): Promise<object> => {
-    const key: string = generateCacheKey(projectId, indexName);
-    return internalCache.get(key, () => fetchProject(es, projectId, indexName));
+export const getExtendedConfigs = async (accessToken: string, indexName: string): Promise<any> => {
+    const key: string = generateCacheKey(PROJECT, indexName);
+    return internalCache.get(key, () => getExtendedMapping(accessToken, indexName));
 };
 
 /**

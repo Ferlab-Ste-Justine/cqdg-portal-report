@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { ES_HOST, ES_PWD, ES_USER } from '../../config/env';
 import { normalizeConfigs } from '../../utils/configUtils';
 import { reportGenerationErrorHandler } from '../../utils/errors';
+import ExtendedReportConfigs from '../../utils/extendedReportConfigs';
 import generateExcelReport from '../utils/generateExcelReport';
 import generatePtSqonWithRelativesIfExist from './generatePtSqonWithRelativesIfExist';
 import getConfig from './getConfig';
@@ -11,7 +12,7 @@ import getConfig from './getConfig';
 const clinicalDataReport = () => async (req: Request, res: Response): Promise<void> => {
     console.time('clinicalDataReport');
 
-    const { sqon, projectId, filename = null, withFamily = false } = req.body;
+    const { sqon, filename = null, withFamily = false } = req.body;
     const userId = req['kauth']?.grant?.access_token?.content?.sub;
     const accessToken = req.headers.authorization;
 
@@ -27,14 +28,14 @@ const clinicalDataReport = () => async (req: Request, res: Response): Promise<vo
         const reportConfigs = withFamily ? config.clinicalDataFamily : config.clinicalData;
 
         // decorate the configs with default values, values from arranger's project, etc...
-        const normalizedConfigs = await normalizeConfigs(es, projectId, reportConfigs);
+        const normalizedConfigs: ExtendedReportConfigs = await normalizeConfigs(accessToken, reportConfigs);
 
         const newSqon = withFamily
-            ? await generatePtSqonWithRelativesIfExist(es, projectId, sqon, normalizedConfigs, userId, accessToken)
+            ? await generatePtSqonWithRelativesIfExist(es, sqon, normalizedConfigs, userId, accessToken)
             : sqon;
 
         // Generate the report
-        await generateExcelReport(es, res, projectId, newSqon, filename, normalizedConfigs, userId, accessToken);
+        await generateExcelReport(es, res, newSqon, filename, normalizedConfigs, userId, accessToken);
         es.close();
     } catch (err) {
         reportGenerationErrorHandler(err, es);

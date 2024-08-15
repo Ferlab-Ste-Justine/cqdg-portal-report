@@ -2,8 +2,8 @@ import { buildQuery } from '@arranger/middleware';
 import { Client } from '@elastic/elasticsearch';
 
 import { ES_QUERY_MAX_SIZE } from '../../config/env';
-import { getExtendedConfigs, getNestedFields } from '../../utils/arrangerUtils';
 import { executeSearch } from '../../utils/esUtils';
+import { getExtendedConfigs, getNestedFields } from '../../utils/extendedMappingUtils';
 import { Sqon } from '../../utils/setsTypes';
 import { resolveSetsInSqon } from '../../utils/sqonUtils';
 import getConfig from './getConfig';
@@ -37,7 +37,6 @@ export const xIsSubsetOfY = (x: string[], y: string[]) => x.every((e: string) =>
 /**
  * Generate a sqon from the family_id of all the participants in the given `sqon`.
  * @param {object} es - an `elasticsearch.Client` instance.
- * @param {string} projectId - the id of the arranger project.
  * @param {object} sqon - the sqon used to filter the results.
  * @param {object} normalizedConfigs - the normalized report configuration.
  * @param {string} userId - the user id.
@@ -46,13 +45,12 @@ export const xIsSubsetOfY = (x: string[], y: string[]) => x.every((e: string) =>
  */
 const generatePtSqonWithRelativesIfExist = async (
     es: Client,
-    projectId: string,
     sqon: Sqon,
     normalizedConfigs: { indexName: string; alias: string; [index: string]: any },
     userId: string,
     accessToken: string,
 ): Promise<Sqon> => {
-    const extendedConfig = await getExtendedConfigs(es, projectId, normalizedConfigs.indexName);
+    const extendedConfig = await getExtendedConfigs(accessToken, normalizedConfigs.indexName);
     const nestedFields = getNestedFields(extendedConfig);
     const newSqon = await resolveSetsInSqon(sqon, userId, accessToken);
     const configGlobal = getConfig().global;
