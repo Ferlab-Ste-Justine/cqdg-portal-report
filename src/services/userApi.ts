@@ -23,6 +23,24 @@ export const getUserSets = async (accessToken: string): Promise<Output[]> => {
     throw new UserApiError(response.status, body);
 };
 
+export const getSet = async (accessToken: string, setId: string): Promise<Output> => {
+    const response = await fetch(encodeURI(`${SET_URI}/${setId}`), {
+        method: 'get',
+        headers: {
+            Authorization: accessToken,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    const body = await response.json();
+
+    if (response.status === 200) {
+        return body;
+    }
+
+    throw new UserApiError(response.status, body);
+};
+
 export const getSharedSet = async (accessToken: string, setId: string): Promise<Output> => {
     const uri = `${SET_URI}/shared/${setId}`;
 

@@ -13,6 +13,7 @@ export default (): Router => {
     router.use('/clinical-data', clinicalDataReport());
     router.use('/biospecimen-data', biospecimenDataReport());
     router.use('/file-manifest/stats', fileManifestStats());
+    router.use('/file-manifest/:setId', fileManifestReport());
     router.use('/file-manifest', fileManifestReport());
     router.use('/file-request-access/stats', fileRequestAccessStats());
     router.use('/file-request-access', fileRequestAccess());
