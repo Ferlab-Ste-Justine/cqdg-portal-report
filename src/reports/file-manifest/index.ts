@@ -2,6 +2,7 @@ import { Client } from '@elastic/elasticsearch';
 import { Request, Response } from 'express';
 
 import { ES_HOST, ES_PWD, ES_USER, esFileIndex } from '../../config/env';
+import { getSet } from '../../services/userApi';
 import { reportGenerationErrorHandler } from '../../utils/errors';
 import { cleanTmpFolder, createTmpFolder } from '../../utils/tmpFolderUtils';
 import generateTsvReport from '../utils/generateTsvReport';
@@ -24,11 +25,20 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
                 ? new Client({ node: ES_HOST, auth: { password: ES_PWD, username: ES_USER } })
                 : new Client({ node: ES_HOST });
 
+        const setId = req.params.setId;
         const { fileManifest: configFileManifest, global: configGlobal } = getConfig();
-        const wantedFields = [configGlobal.file_id];
-        const files = await getFilesFromSqon(es, sqon, userId, accessToken, wantedFields);
-        const fileIds = files?.map(f => f[configGlobal.file_id]);
-        const newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
+
+        let newFileIds: string[];
+        if (setId) {
+            const set = await getSet(accessToken, setId);
+            newFileIds = set.content.ids;
+        } else {
+            const wantedFields = [configGlobal.file_id];
+            const files = await getFilesFromSqon(es, sqon, userId, accessToken, wantedFields);
+            const fileIds = files?.map(f => f[configGlobal.file_id]);
+            newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
+        }
+
         const { filesInfos, filesInfosWithExtraFields } = await getInfosByConfig(
             es,
             configFileManifest,
