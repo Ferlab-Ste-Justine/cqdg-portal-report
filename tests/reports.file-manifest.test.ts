@@ -54,11 +54,12 @@ describe('POST /reports/file-manifest/stats', () => {
             value: 'Aligned Reads',
             nb_participants: 2,
             nb_files: 2,
+            nb_files_skipped: 0,
             size: 300,
         });
 
         const variants = res.body.find((x: any) => x.value === 'Variants');
-        expect(variants).to.deep.include({ nb_participants: 1, nb_files: 1, size: 50 });
+        expect(variants).to.deep.include({ nb_participants: 1, nb_files: 1, nb_files_skipped: 0, size: 50 });
     });
 
     it('returns an empty array when no files match', async () => {
@@ -68,6 +69,53 @@ describe('POST /reports/file-manifest/stats', () => {
             .send({ sqon: { op: 'and', content: [] } });
         expect(res.status).to.equal(200);
         expect(res.body).to.deep.equal([]);
+    });
+
+    it('dedupes files sharing a file_hash before computing nb_files and size', async () => {
+        // F1 and F2 are the same physical file emitted by the ETL under two
+        // different file_ids - without dedup the stats would report 3 files /
+        // 400 bytes instead of 2 files / 300 bytes for "Aligned Reads".
+        const files = [
+            makeFileSource({
+                file_id: 'F1',
+                file_hash: 'h1',
+                data_type: 'Aligned Reads',
+                file_size: 100,
+                participants: [{ participant_id: 'P1' }],
+            }),
+            makeFileSource({
+                file_id: 'F2',
+                file_hash: 'h1',
+                data_type: 'Aligned Reads',
+                file_size: 100,
+                participants: [{ participant_id: 'P1' }],
+            }),
+            makeFileSource({
+                file_id: 'F3',
+                file_hash: 'h2',
+                data_type: 'Aligned Reads',
+                file_size: 200,
+                participants: [{ participant_id: 'P2' }],
+            }),
+        ];
+
+        testApp = buildTestApp({
+            esSearch: () => makeHitsBody(files),
+            fetch: async () => extendedMappingResponse,
+        });
+
+        const res = await request(testApp.app)
+            .post('/reports/file-manifest/stats')
+            .send({ sqon: { op: 'and', content: [] } });
+
+        expect(res.status).to.equal(200);
+        const aligned = res.body.find((x: any) => x.value === 'Aligned Reads');
+        expect(aligned).to.deep.include({
+            nb_files: 2,
+            nb_files_skipped: 1,
+            size: 300,
+            nb_participants: 2,
+        });
     });
 });
 
@@ -116,22 +164,41 @@ describe('POST /reports/file-manifest', () => {
 
     it('dedupes rows when the ETL emits the same physical file under different file_ids', async () => {
         // The ETL emits one row per (sample/file), so the same physical file
-        // can appear under several distinct file_ids that share a file_name.
+        // can appear under several distinct file_ids that share a file_hash.
         // The manifest should list each physical file once.
         const files = [
-            makeFileSource({ file_id: 'F1', file_name: 'shared.cram', biospecimens: [{ sample_id: 'S1' }] }),
-            makeFileSource({ file_id: 'F2', file_name: 'shared.cram', biospecimens: [{ sample_id: 'S2' }] }),
-            makeFileSource({ file_id: 'F3', file_name: 'other.cram' }),
+            makeFileSource({ file_id: 'F1', file_hash: 'hash-1', biospecimens: [{ sample_id: 'S1' }] }),
+            makeFileSource({ file_id: 'F2', file_hash: 'hash-1', biospecimens: [{ sample_id: 'S2' }] }),
+            makeFileSource({ file_id: 'F3', file_hash: 'hash-2' }),
         ];
 
         const res = await runManifestRequest(files);
         expect(res.status).to.equal(200);
 
         const lines = res.text.trim().split('\n');
-        // 1 header + 2 deduped data rows (F1 wins over F2 because they share the same file_name)
+        // 1 header + 2 deduped data rows (F1 wins over F2 because they share the same file_hash)
         expect(lines).to.have.lengthOf(3);
 
         const fileIdColumn = lines.slice(1).map(l => l.split('\t')[0]);
         expect(fileIdColumn).to.deep.equal(['F1', 'F3']);
+    });
+
+    it('keeps every row when file_hash is missing (no dedup without a hash)', async () => {
+        // Files without a computed hash should pass through untouched, even if
+        // other fields collide — the dedup only kicks in when file_hash is set.
+        const files = [
+            makeFileSource({ file_id: 'F1', file_name: 'a.cram' }),
+            makeFileSource({ file_id: 'F2', file_name: 'a.cram' }),
+            makeFileSource({ file_id: 'F3', file_name: 'b.cram', file_hash: '' }),
+        ];
+
+        const res = await runManifestRequest(files);
+        expect(res.status).to.equal(200);
+
+        const lines = res.text.trim().split('\n');
+        // 1 header + 3 data rows, none deduped
+        expect(lines).to.have.lengthOf(4);
+        const fileIdColumn = lines.slice(1).map(l => l.split('\t')[0]);
+        expect(fileIdColumn).to.deep.equal(['F1', 'F2', 'F3']);
     });
 });

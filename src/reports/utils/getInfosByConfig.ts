@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import { ES_QUERY_MAX_SIZE } from '../../config/env';
 import { executeSearch } from '../../utils/esUtils';
 import { SheetConfig } from '../types';
+import dedupeByField from './dedupeByField';
 
 /** this recursive func allow you to find nested array values */
 const getValueRecursive = (file: any, fieldSplitedByDot: string[], i = 0): string => {
@@ -52,25 +53,14 @@ const getInfosByConfig = async (
 ): Promise<{ filesInfos: { key: string }[]; filesInfosWithExtraFields: { key: string }[] }> => {
     const esRequest = {
         query: { bool: { must: [{ terms: { [idField]: ids, boost: 0 } }] } },
-        _source: [...config.columns.map(e => e.field), ...(extraFields || [])],
+        _source: [...config.columns.map(e => e.field), ...(extraFields || []), dedupField],
         sort: config.sort,
         size: ES_QUERY_MAX_SIZE,
     };
     const results = await executeSearch(es, esIndex, esRequest);
     const hits = results?.body?.hits?.hits || [];
     const sources = hits.map((hit: any) => hit._source);
-    // The ETL emits one row per (sample/file), so the same physical file can
-    // appear multiple times under different `file_id`s. Dedupe on `dedupField`
-    // (e.g. `file_name`) so the manifest doesn't list the same file twice.
-    const dedupKey = dedupField;
-    const seen = new Set<string>();
-    const dedupedSources = sources.filter((source: any) => {
-        const value = source[dedupKey];
-        if (value === undefined || value === null) return true;
-        if (seen.has(value)) return false;
-        seen.add(value);
-        return true;
-    });
+    const dedupedSources = dedupeByField(sources, dedupField);
     const configColumns = config.columns;
     const configColumnsWithExtraFields = [...config.columns, ...(extraFields?.map(field => ({ field })) || [])];
     const filesInfos = getFilesInfo(configColumns, dedupedSources);

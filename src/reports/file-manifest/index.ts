@@ -45,7 +45,7 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
             newFileIds,
             configGlobal.file_id,
             esFileIndex,
-            configGlobal.file_name,
+            configGlobal.file_hash,
             [
                 configGlobal.relates_to_file_id,
                 configGlobal.relates_to_file_name,
@@ -58,9 +58,9 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
         const tsvPath = `${folderPath}/${filename}.tsv`;
 
         await generateTsvReport(filesInfos, tsvPath, configFileManifest, filesInfosWithExtraFields);
-
-        await res.download(`${folderPath}/${filename}.tsv`, `${filename}.tsv`, () => cleanTmpFolder(folderPath));
+        res.download(`${folderPath}/${filename}.tsv`, `${filename}.tsv`, () => cleanTmpFolder(folderPath));
         es.close();
+
     } catch (err) {
         reportGenerationErrorHandler(err, es);
     }
