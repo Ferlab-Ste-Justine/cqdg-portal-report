@@ -45,6 +45,7 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
             newFileIds,
             configGlobal.file_id,
             esFileIndex,
+            configGlobal.file_name,
             [
                 configGlobal.relates_to_file_id,
                 configGlobal.relates_to_file_name,

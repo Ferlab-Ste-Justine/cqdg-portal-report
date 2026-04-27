@@ -47,6 +47,7 @@ const getInfosByConfig = async (
     ids: string[],
     idField: string,
     esIndex: string,
+    dedupField: string,
     extraFields?: string[],
 ): Promise<{ filesInfos: { key: string }[]; filesInfosWithExtraFields: { key: string }[] }> => {
     const esRequest = {
@@ -58,11 +59,16 @@ const getInfosByConfig = async (
     const results = await executeSearch(es, esIndex, esRequest);
     const hits = results?.body?.hits?.hits || [];
     const sources = hits.map((hit: any) => hit._source);
-    const seenIds = new Set<string>();
+    // The ETL emits one row per (sample/file), so the same physical file can
+    // appear multiple times under different `file_id`s. Dedupe on `dedupField`
+    // (e.g. `file_name`) so the manifest doesn't list the same file twice.
+    const dedupKey = dedupField;
+    const seen = new Set<string>();
     const dedupedSources = sources.filter((source: any) => {
-        const id = source[idField];
-        if (seenIds.has(id)) return false;
-        seenIds.add(id);
+        const value = source[dedupKey];
+        if (value === undefined || value === null) return true;
+        if (seen.has(value)) return false;
+        seen.add(value);
         return true;
     });
     const configColumns = config.columns;

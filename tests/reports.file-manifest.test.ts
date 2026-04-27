@@ -114,20 +114,24 @@ describe('POST /reports/file-manifest', () => {
         expect(lines[2]).to.include('F2');
     });
 
-    it('dedupes rows when the same file_id appears multiple times (shared across samples)', async () => {
+    it('dedupes rows when the ETL emits the same physical file under different file_ids', async () => {
+        // The ETL emits one row per (sample/file), so the same physical file
+        // can appear under several distinct file_ids that share a file_name.
+        // The manifest should list each physical file once.
         const files = [
             makeFileSource({ file_id: 'F1', file_name: 'shared.cram', biospecimens: [{ sample_id: 'S1' }] }),
-            makeFileSource({ file_id: 'F1', file_name: 'shared.cram', biospecimens: [{ sample_id: 'S2' }] }),
-            makeFileSource({ file_id: 'F2', file_name: 'other.cram' }),
+            makeFileSource({ file_id: 'F2', file_name: 'shared.cram', biospecimens: [{ sample_id: 'S2' }] }),
+            makeFileSource({ file_id: 'F3', file_name: 'other.cram' }),
         ];
 
         const res = await runManifestRequest(files);
         expect(res.status).to.equal(200);
 
         const lines = res.text.trim().split('\n');
+        // 1 header + 2 deduped data rows (F1 wins over F2 because they share the same file_name)
         expect(lines).to.have.lengthOf(3);
 
         const fileIdColumn = lines.slice(1).map(l => l.split('\t')[0]);
-        expect(fileIdColumn).to.deep.equal(['F1', 'F2']);
+        expect(fileIdColumn).to.deep.equal(['F1', 'F3']);
     });
 });
