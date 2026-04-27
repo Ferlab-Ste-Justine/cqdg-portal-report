@@ -6,19 +6,19 @@ import { executeSearch } from '../../utils/esUtils';
 import { SheetConfig } from '../types';
 
 /** this recursive func allow you to find nested array values */
-const getValueRecursive = (file, fieldSplitedByDot, i = 0) => {
+const getValueRecursive = (file: any, fieldSplitedByDot: string[], i = 0): string => {
     const parent = fieldSplitedByDot[i];
     const child = fieldSplitedByDot[i + 1];
     if (Array.isArray(child)) {
         return getValueRecursive(file, fieldSplitedByDot, i + 1);
     }
-    return file[parent].map(e => e[child])?.join(', ');
+    return file[parent].map((e: any) => e[child])?.join(', ');
 };
 
-const getFilesInfo = (configColumns, sources): { key: string }[] =>
-    sources.map(source =>
+const getFilesInfo = (configColumns: any[], sources: any[]): { key: string }[] =>
+    sources.map((source: any) =>
         configColumns
-            .map(column => {
+            .map((column: any) => {
                 const field = column.field;
                 /** default case example: field = 'file_id' */
                 let value = source[field];
@@ -37,7 +37,7 @@ const getFilesInfo = (configColumns, sources): { key: string }[] =>
                 }
                 return { [field]: value };
             })
-            .reduce((a, b) => Object.assign(a, b), {}),
+            .reduce((a: any, b: any) => Object.assign(a, b), {}),
     );
 
 /** generic function to prepare { key: value }[] from a config ES search friendly */
@@ -57,11 +57,18 @@ const getInfosByConfig = async (
     };
     const results = await executeSearch(es, esIndex, esRequest);
     const hits = results?.body?.hits?.hits || [];
-    const sources = hits.map(hit => hit._source);
+    const sources = hits.map((hit: any) => hit._source);
+    const seenIds = new Set<string>();
+    const dedupedSources = sources.filter((source: any) => {
+        const id = source[idField];
+        if (seenIds.has(id)) return false;
+        seenIds.add(id);
+        return true;
+    });
     const configColumns = config.columns;
     const configColumnsWithExtraFields = [...config.columns, ...(extraFields?.map(field => ({ field })) || [])];
-    const filesInfos = getFilesInfo(configColumns, sources);
-    const filesInfosWithExtraFields = getFilesInfo(configColumnsWithExtraFields, sources);
+    const filesInfos = getFilesInfo(configColumns, dedupedSources);
+    const filesInfosWithExtraFields = getFilesInfo(configColumnsWithExtraFields, dedupedSources);
 
     return { filesInfos, filesInfosWithExtraFields };
 };
