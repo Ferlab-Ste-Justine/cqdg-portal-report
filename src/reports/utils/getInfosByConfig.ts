@@ -4,21 +4,22 @@ import get from 'lodash/get';
 import { ES_QUERY_MAX_SIZE } from '../../config/env';
 import { executeSearch } from '../../utils/esUtils';
 import { SheetConfig } from '../types';
+import dedupeByField from './dedupeByField';
 
 /** this recursive func allow you to find nested array values */
-const getValueRecursive = (file, fieldSplitedByDot, i = 0) => {
+const getValueRecursive = (file: any, fieldSplitedByDot: string[], i = 0): string => {
     const parent = fieldSplitedByDot[i];
     const child = fieldSplitedByDot[i + 1];
     if (Array.isArray(child)) {
         return getValueRecursive(file, fieldSplitedByDot, i + 1);
     }
-    return file[parent].map(e => e[child])?.join(', ');
+    return file[parent].map((e: any) => e[child])?.join(', ');
 };
 
-const getFilesInfo = (configColumns, sources): { key: string }[] =>
-    sources.map(source =>
+const getFilesInfo = (configColumns: any[], sources: any[]): { key: string }[] =>
+    sources.map((source: any) =>
         configColumns
-            .map(column => {
+            .map((column: any) => {
                 const field = column.field;
                 /** default case example: field = 'file_id' */
                 let value = source[field];
@@ -37,7 +38,7 @@ const getFilesInfo = (configColumns, sources): { key: string }[] =>
                 }
                 return { [field]: value };
             })
-            .reduce((a, b) => Object.assign(a, b), {}),
+            .reduce((a: any, b: any) => Object.assign(a, b), {}),
     );
 
 /** generic function to prepare { key: value }[] from a config ES search friendly */
@@ -47,21 +48,23 @@ const getInfosByConfig = async (
     ids: string[],
     idField: string,
     esIndex: string,
+    dedupField: string,
     extraFields?: string[],
 ): Promise<{ filesInfos: { key: string }[]; filesInfosWithExtraFields: { key: string }[] }> => {
     const esRequest = {
         query: { bool: { must: [{ terms: { [idField]: ids, boost: 0 } }] } },
-        _source: [...config.columns.map(e => e.field), ...(extraFields || [])],
+        _source: [...config.columns.map(e => e.field), ...(extraFields || []), dedupField],
         sort: config.sort,
         size: ES_QUERY_MAX_SIZE,
     };
     const results = await executeSearch(es, esIndex, esRequest);
     const hits = results?.body?.hits?.hits || [];
-    const sources = hits.map(hit => hit._source);
+    const sources = hits.map((hit: any) => hit._source);
+    const dedupedSources = dedupeByField(sources, dedupField);
     const configColumns = config.columns;
     const configColumnsWithExtraFields = [...config.columns, ...(extraFields?.map(field => ({ field })) || [])];
-    const filesInfos = getFilesInfo(configColumns, sources);
-    const filesInfosWithExtraFields = getFilesInfo(configColumnsWithExtraFields, sources);
+    const filesInfos = getFilesInfo(configColumns, dedupedSources);
+    const filesInfosWithExtraFields = getFilesInfo(configColumnsWithExtraFields, dedupedSources);
 
     return { filesInfos, filesInfosWithExtraFields };
 };

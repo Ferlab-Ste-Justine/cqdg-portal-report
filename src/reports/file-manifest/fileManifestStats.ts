@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 
 import { ES_HOST, ES_PWD, ES_USER } from '../../config/env';
 import { reportGenerationErrorHandler } from '../../utils/errors';
+import dedupeByField from '../utils/dedupeByField';
 import getFamilyIds from '../utils/getFamilyIds';
 import getFilesFromSqon from '../utils/getFilesFromSqon';
 import getConfig from './getConfig';
@@ -12,6 +13,7 @@ interface IFileByDataType {
     value: string;
     nb_participants: number;
     nb_files: number;
+    nb_files_skipped: number;
     size: number;
 }
 
@@ -30,7 +32,11 @@ const fileManifestStats = () => async (req: Request, res: Response): Promise<voi
                 : new Client({ node: ES_HOST });
 
         const configGlobal = getConfig().global;
-        const files = await getFilesFromSqon(es, sqon, userId, accessToken, configGlobal.fileManifestWantedFields);
+        const rawFiles = await getFilesFromSqon(es, sqon, userId, accessToken, configGlobal.fileManifestWantedFields);
+        // Collapse rows the ETL emits per (sample/file) when the same physical
+        // file is referenced under several `file_id`s. Without this, `nb_files`
+        // and `size` would double-count. Rows without a hash pass through.
+        const files = dedupeByField(rawFiles, configGlobal.file_hash);
 
         const newFiles = withFamily
             ? await getFamilyIds(
@@ -50,11 +56,15 @@ const fileManifestStats = () => async (req: Request, res: Response): Promise<voi
                 }
                 const participantIdsUniq = [...new Set(participantIds)];
                 const nb_participants = participantIdsUniq.length;
+                const rawFilesFound = rawFiles.filter(
+                    f => f[configGlobal.data_type] === file[configGlobal.data_type],
+                );
                 filesInfosData.push({
                     key: file[configGlobal.data_type],
                     value: file[configGlobal.data_type],
                     nb_participants,
                     nb_files: filesFound.length,
+                    nb_files_skipped: rawFilesFound.length - filesFound.length,
                     size: filesFound.reduce((a, b) => a + (b ? b[configGlobal.file_size] : 0), 0),
                 });
             }
