@@ -50,17 +50,23 @@ const getInfosByConfig = async (
     esIndex: string,
     dedupField: string,
     extraFields?: string[],
+    dedupGroupByField?: string,
 ): Promise<{ filesInfos: { key: string }[]; filesInfosWithExtraFields: { key: string }[] }> => {
     const esRequest = {
         query: { bool: { must: [{ terms: { [idField]: ids, boost: 0 } }] } },
-        _source: [...config.columns.map(e => e.field), ...(extraFields || []), dedupField],
+        _source: [
+            ...config.columns.map(e => e.field),
+            ...(extraFields || []),
+            dedupField,
+            ...(dedupGroupByField ? [dedupGroupByField] : []),
+        ],
         sort: config.sort,
         size: ES_QUERY_MAX_SIZE,
     };
     const results = await executeSearch(es, esIndex, esRequest);
     const hits = results?.body?.hits?.hits || [];
     const sources = hits.map((hit: any) => hit._source);
-    const dedupedSources = dedupeByField(sources, dedupField);
+    const dedupedSources = dedupeByField(sources, dedupField, dedupGroupByField);
     const configColumns = config.columns;
     const configColumnsWithExtraFields = [...config.columns, ...(extraFields?.map(field => ({ field })) || [])];
     const filesInfos = getFilesInfo(configColumns, dedupedSources);
