@@ -8,7 +8,6 @@ const config: SheetConfig = {
         { field: 'file_id', header: 'File ID' },
         { field: 'file_name', header: 'File Name' },
         { field: 'file_size', header: 'File Size', transform: value => formatFileSize(value, { output: 'string' }) },
-        { field: 'ferload_url', header: 'Url' },
         { field: 'file_hash', header: 'Hash' },
         { field: 'data_category', header: 'Data Category' },
         { field: 'data_type', header: 'Data Type' },

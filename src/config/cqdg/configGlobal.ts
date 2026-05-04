@@ -33,7 +33,6 @@ const configGlobal = {
         'participants.participant_id',
         'file_name',
         'file_hash',
-        'ferload_url',
         'data_type',
         'file_format',
         'study.data_access_codes.access_limitations',
