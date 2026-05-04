@@ -52,6 +52,7 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
                 configGlobal.relates_to_file_format,
                 configGlobal.relates_to_file_size,
             ],
+            configGlobal.data_type,
         );
 
         const folderPath = await createTmpFolder();

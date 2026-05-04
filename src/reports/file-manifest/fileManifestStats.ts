@@ -33,16 +33,13 @@ const fileManifestStats = () => async (req: Request, res: Response): Promise<voi
 
         const configGlobal = getConfig().global;
         const rawFiles = await getFilesFromSqon(es, sqon, userId, accessToken, configGlobal.fileManifestWantedFields);
-        // Collapse rows the ETL emits per (sample/file) when the same physical
-        // file is referenced under several `file_id`s. Without this, `nb_files`
-        // and `size` would double-count. Rows without a hash pass through.
-        const files = dedupeByField(rawFiles, configGlobal.file_hash);
+        const files = dedupeByField(rawFiles, configGlobal.file_hash, configGlobal.data_type);
 
         const newFiles = withFamily
             ? await getFamilyIds(
-                  es,
-                  files?.map(f => f[configGlobal.file_id]),
-              )
+                es,
+                files?.map(f => f[configGlobal.file_id]),
+            )
             : files;
 
         /** Join files by data_type */
