@@ -19,13 +19,15 @@ const generateTsvReport = async (
 
         /** [CQDG-737] if the current file is a CRAM and has a CRAI sub-file then add new line for it on the tsv */
         /** first check and get back the file with extra relates_to infos in `dataWithExtraFields` because `data` contained the SheetConfig schema only */
-        const fileFound = dataWithExtraFields.find(e => e[configGlobal.file_id] === row[configGlobal.file_id]);
+        const fileFound = dataWithExtraFields.find(
+            e => e[configGlobal.stable_file_id] === row[configGlobal.stable_file_id],
+        );
         /** then check if the file has a child in relates_to */
         if (fileFound?.[configGlobal.relates_to_file_format]) {
             /** copy the row but change the id, name, format and size */
             const craiRow = {
                 ...row,
-                file_id: fileFound?.[configGlobal.relates_to_file_id],
+                [configGlobal.stable_file_id]: fileFound?.[configGlobal.relates_to_stable_file_id],
                 file_name: fileFound?.[configGlobal.relates_to_file_name],
                 file_format: fileFound?.[configGlobal.relates_to_file_format],
                 file_size: formatFileSize(fileFound?.[configGlobal.relates_to_file_size], { output: 'string' }),

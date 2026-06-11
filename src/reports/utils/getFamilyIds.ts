@@ -10,15 +10,11 @@ interface IFileInfo {
 }
 
 /** Get IFileInfo: files data_types and family_ids */
-const getFilesInfo = async (fileIds: string[], es: Client): Promise<IFileInfo[]> => {
+const getFilesInfo = async (fileIds: string[], es: Client, idField: string): Promise<IFileInfo[]> => {
     const configGlobal = getConfigGlobal();
     const esRequest = {
-        query: { bool: { must: [{ terms: { [configGlobal.file_id]: fileIds, boost: 0 } }] } },
-        _source: [
-            configGlobal.file_id,
-            configGlobal.data_type,
-            `${configGlobal.participants}.${configGlobal.family_id}`,
-        ],
+        query: { bool: { must: [{ terms: { [idField]: fileIds, boost: 0 } }] } },
+        _source: [idField, configGlobal.data_type, `${configGlobal.participants}.${configGlobal.family_id}`],
         sort: [{ [configGlobal.data_type]: { order: 'asc' } }],
         size: ES_QUERY_MAX_SIZE,
     };
@@ -47,7 +43,7 @@ const getFilesInfo = async (fileIds: string[], es: Client): Promise<IFileInfo[]>
 };
 
 /** for each filesInfos iteration, get files from file.participants.family_id and file.data_type */
-const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<string[]> => {
+const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client, idField: string): Promise<string[]> => {
     const configGlobal = getConfigGlobal();
     const filesIdsMatched = [];
     const results = await Promise.all(
@@ -76,7 +72,7 @@ const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<
                         ],
                     },
                 },
-                _source: [configGlobal.file_id],
+                _source: [idField],
                 size: ES_QUERY_MAX_SIZE,
             };
             return executeSearch(es, esFileIndex, esRequest);
@@ -86,7 +82,7 @@ const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<
     for (const res of results) {
         const hits = res?.body?.hits?.hits || [];
         const sources = hits.map(hit => hit._source);
-        filesIdsMatched.push(...sources.map(s => s[configGlobal.file_id]));
+        filesIdsMatched.push(...sources.map(s => s[idField]));
     }
 
     return filesIdsMatched;
@@ -97,9 +93,13 @@ const getFilesIdsMatched = async (filesInfos: IFileInfo[], es: Client): Promise<
  * @param es
  * @param fileIds
  */
-const getFamilyIds = async (es: Client, fileIds: string[]): Promise<string[]> => {
-    const filesInfos = await getFilesInfo(fileIds, es);
-    const filesIdsMatched = await getFilesIdsMatched(filesInfos, es);
+const getFamilyIds = async (
+    es: Client,
+    fileIds: string[],
+    idField: string = getConfigGlobal().file_id,
+): Promise<string[]> => {
+    const filesInfos = await getFilesInfo(fileIds, es, idField);
+    const filesIdsMatched = await getFilesIdsMatched(filesInfos, es, idField);
     const newFileIds = [...new Set([...fileIds, ...filesIdsMatched])];
 
     return newFileIds;

@@ -71,25 +71,25 @@ describe('POST /reports/file-manifest/stats', () => {
         expect(res.body).to.deep.equal([]);
     });
 
-    it('dedupes files sharing a file_hash before computing nb_files and size', async () => {
+    it('dedupes files sharing a stable_file_id before computing nb_files and size', async () => {
         const files = [
             makeFileSource({
                 file_id: 'F1',
-                file_hash: 'h1',
+                stable_file_id: 'FH1',
                 data_type: 'Aligned Reads',
                 file_size: 100,
                 participants: [{ participant_id: 'P1' }],
             }),
             makeFileSource({
                 file_id: 'F2',
-                file_hash: 'h1',
+                stable_file_id: 'FH1',
                 data_type: 'Aligned Reads',
                 file_size: 100,
                 participants: [{ participant_id: 'P1' }],
             }),
             makeFileSource({
                 file_id: 'F3',
-                file_hash: 'h2',
+                stable_file_id: 'FH2',
                 data_type: 'Aligned Reads',
                 file_size: 200,
                 participants: [{ participant_id: 'P2' }],
@@ -115,25 +115,25 @@ describe('POST /reports/file-manifest/stats', () => {
         });
     });
 
-    it('does not drop a data_type when its files share a file_hash with files of another data_type', async () => {
+    it('does not drop a data_type when its files share a stable_file_id with files of another data_type', async () => {
         const files = [
             makeFileSource({
                 file_id: 'F1',
-                file_hash: 'shared-hash',
+                stable_file_id: 'shared-stable-id',
                 data_type: 'Aligned Reads',
                 file_size: 100,
                 participants: [{ participant_id: 'P1' }],
             }),
             makeFileSource({
                 file_id: 'F2',
-                file_hash: 'shared-hash',
+                stable_file_id: 'shared-stable-id',
                 data_type: 'Quality Control Metrics',
                 file_size: 50,
                 participants: [{ participant_id: 'P1' }],
             }),
             makeFileSource({
                 file_id: 'F3',
-                file_hash: 'shared-hash',
+                stable_file_id: 'shared-stable-id',
                 data_type: 'Structural Variations (SVs)',
                 file_size: 25,
                 participants: [{ participant_id: 'P1' }],
@@ -176,7 +176,7 @@ describe('POST /reports/file-manifest', () => {
             esSearch: () => {
                 call += 1;
                 if (call === 1) {
-                    return makeHitsBody(files.map(f => ({ file_id: f.file_id })));
+                    return makeHitsBody(files.map(f => ({ stable_file_id: f.stable_file_id })));
                 }
                 return makeHitsBody(files);
             },
@@ -187,10 +187,10 @@ describe('POST /reports/file-manifest', () => {
             .send({ sqon: { op: 'and', content: [] }, filename: 'manifest' });
     };
 
-    it('streams a TSV with a header row and one row per file', async () => {
+    it('streams a TSV showing the stable_file_id (FH) in the File ID column, never the FI file_id', async () => {
         const files = [
-            makeFileSource({ file_id: 'F1', file_name: 'a.cram' }),
-            makeFileSource({ file_id: 'F2', file_name: 'b.cram' }),
+            makeFileSource({ file_id: 'FI1', stable_file_id: 'FH1', file_name: 'a.cram' }),
+            makeFileSource({ file_id: 'FI2', stable_file_id: 'FH2', file_name: 'b.cram' }),
         ];
 
         const res = await runManifestRequest(files);
@@ -202,15 +202,17 @@ describe('POST /reports/file-manifest', () => {
         expect(lines[0]).to.include('File Name');
 
         expect(lines).to.have.lengthOf(3);
-        expect(lines[1]).to.include('F1');
-        expect(lines[2]).to.include('F2');
+        const fileIdColumn = lines.slice(1).map(l => l.split('\t')[0]);
+        expect(fileIdColumn).to.deep.equal(['FH1', 'FH2']);
+        expect(res.text).to.not.include('FI1');
+        expect(res.text).to.not.include('FI2');
     });
 
-    it('dedupes rows when the ETL emits the same physical file under different file_ids', async () => {
+    it('dedupes rows that share a stable_file_id (same physical file, different sample-scoped file_id)', async () => {
         const files = [
-            makeFileSource({ file_id: 'F1', file_hash: 'hash-1', biospecimens: [{ sample_id: 'S1' }] }),
-            makeFileSource({ file_id: 'F2', file_hash: 'hash-1', biospecimens: [{ sample_id: 'S2' }] }),
-            makeFileSource({ file_id: 'F3', file_hash: 'hash-2' }),
+            makeFileSource({ file_id: 'FI1', stable_file_id: 'FH1', biospecimens: [{ sample_id: 'S1' }] }),
+            makeFileSource({ file_id: 'FI2', stable_file_id: 'FH1', biospecimens: [{ sample_id: 'S2' }] }),
+            makeFileSource({ file_id: 'FI3', stable_file_id: 'FH2' }),
         ];
 
         const res = await runManifestRequest(files);
@@ -220,17 +222,13 @@ describe('POST /reports/file-manifest', () => {
         expect(lines).to.have.lengthOf(3);
 
         const fileIdColumn = lines.slice(1).map(l => l.split('\t')[0]);
-        expect(fileIdColumn).to.deep.equal(['F1', 'F3']);
+        expect(fileIdColumn).to.deep.equal(['FH1', 'FH2']);
     });
 
-    it('keeps a row when its file_hash matches another row with a different data_type', async () => {
+    it('keeps a row when its stable_file_id matches another row with a different data_type', async () => {
         const files = [
-            makeFileSource({ file_id: 'F1', file_hash: 'shared-hash', data_type: 'Aligned Reads' }),
-            makeFileSource({
-                file_id: 'F2',
-                file_hash: 'shared-hash',
-                data_type: 'Quality Control Metrics',
-            }),
+            makeFileSource({ stable_file_id: 'FH-shared', data_type: 'Aligned Reads' }),
+            makeFileSource({ stable_file_id: 'FH-shared', data_type: 'Quality Control Metrics' }),
         ];
 
         const res = await runManifestRequest(files);
@@ -240,14 +238,14 @@ describe('POST /reports/file-manifest', () => {
         expect(lines).to.have.lengthOf(3);
 
         const fileIdColumn = lines.slice(1).map(l => l.split('\t')[0]);
-        expect(fileIdColumn).to.deep.equal(['F1', 'F2']);
+        expect(fileIdColumn).to.deep.equal(['FH-shared', 'FH-shared']);
     });
 
-    it('keeps every row when file_hash is missing (no dedup without a hash)', async () => {
+    it('keeps every row when stable_file_id is missing (no dedup without a stable id)', async () => {
         const files = [
-            makeFileSource({ file_id: 'F1', file_name: 'a.cram' }),
-            makeFileSource({ file_id: 'F2', file_name: 'a.cram' }),
-            makeFileSource({ file_id: 'F3', file_name: 'b.cram', file_hash: '' }),
+            makeFileSource({ file_name: 'a.cram' }),
+            makeFileSource({ file_name: 'a.cram' }),
+            makeFileSource({ file_name: 'b.cram', stable_file_id: '' }),
         ];
 
         const res = await runManifestRequest(files);
@@ -256,7 +254,73 @@ describe('POST /reports/file-manifest', () => {
         const lines = res.text.trim().split('\n');
         expect(lines).to.have.lengthOf(4);
 
+        const fileNameColumn = lines.slice(1).map(l => l.split('\t')[1]);
+        expect(fileNameColumn).to.deep.equal(['a.cram', 'a.cram', 'b.cram']);
+    });
+
+    it('emits the CRAI sub-row with the related stable id and never an FI file_id', async () => {
+        const files = [
+            makeFileSource({
+                file_id: 'FI1',
+                stable_file_id: 'FH1',
+                file_name: 'sample.cram',
+                file_format: 'CRAM',
+                relates_to: {
+                    file_id: 'FI1-crai',
+                    stable_file_id: 'FH1-crai',
+                    file_name: 'sample.crai',
+                    file_format: 'CRAI',
+                    file_size: 10,
+                },
+            }),
+        ];
+
+        const res = await runManifestRequest(files);
+        expect(res.status).to.equal(200);
+
+        const lines = res.text.trim().split('\n');
+        expect(lines).to.have.lengthOf(3); // header + CRAM row + CRAI row
+
         const fileIdColumn = lines.slice(1).map(l => l.split('\t')[0]);
-        expect(fileIdColumn).to.deep.equal(['F1', 'F2', 'F3']);
+        expect(fileIdColumn).to.deep.equal(['FH1', 'FH1-crai']);
+        expect(res.text).to.not.include('FI1-crai');
+        expect(res.text).to.not.include('FI1');
+    });
+
+    it('resolves a saved set by querying ES on stable_file_id with the set FH ids', async () => {
+        const files = [
+            makeFileSource({ file_id: 'FI1', stable_file_id: 'FH1', file_name: 'a.cram' }),
+            makeFileSource({ file_id: 'FI2', stable_file_id: 'FH2', file_name: 'b.cram' }),
+        ];
+
+        let capturedQuery: any;
+        testApp = buildTestApp({
+            esSearch: (params: { index: string; body: any }) => {
+                capturedQuery = params.body?.query;
+                return makeHitsBody(files);
+            },
+            fetch: async (url: string) => {
+                if (url.includes('user-sets')) {
+                    return { status: 200, json: async () => ({ content: { ids: ['FH1', 'FH2'] } }) };
+                }
+                return extendedMappingResponse;
+            },
+        });
+
+        const res = await request(testApp.app)
+            .post('/reports/file-manifest/set-123')
+            .send({ filename: 'manifest' });
+
+        expect(res.status).to.equal(200);
+
+        // the ES terms filter is keyed on stable_file_id, using the FH ids stored in the set
+        const terms = capturedQuery?.bool?.must?.[0]?.terms;
+        expect(terms).to.have.property('stable_file_id');
+        expect(terms.stable_file_id).to.deep.equal(['FH1', 'FH2']);
+
+        // the manifest is built from those set ids
+        const lines = res.text.trim().split('\n');
+        const fileIdColumn = lines.slice(1).map(l => l.split('\t')[0]);
+        expect(fileIdColumn).to.deep.equal(['FH1', 'FH2']);
     });
 });
