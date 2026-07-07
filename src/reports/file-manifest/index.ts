@@ -33,21 +33,21 @@ const fileManifestReport = () => async (req: Request, res: Response): Promise<vo
             const set = await getSet(accessToken, setId);
             newFileIds = set.content.ids;
         } else {
-            const wantedFields = [configGlobal.file_id];
+            const wantedFields = [configGlobal.stable_file_id];
             const files = await getFilesFromSqon(es, sqon, userId, accessToken, wantedFields);
-            const fileIds = files?.map(f => f[configGlobal.file_id]);
-            newFileIds = withFamily ? await getFamilyIds(es, fileIds) : fileIds;
+            const fileIds = files?.map(f => f[configGlobal.stable_file_id]);
+            newFileIds = withFamily ? await getFamilyIds(es, fileIds, configGlobal.stable_file_id) : fileIds;
         }
 
         const { filesInfos, filesInfosWithExtraFields } = await getInfosByConfig(
             es,
             configFileManifest,
             newFileIds,
-            configGlobal.file_id,
+            configGlobal.stable_file_id,
             esFileIndex,
-            configGlobal.file_hash,
+            configGlobal.stable_file_id,
             [
-                configGlobal.relates_to_file_id,
+                configGlobal.relates_to_stable_file_id,
                 configGlobal.relates_to_file_name,
                 configGlobal.relates_to_file_format,
                 configGlobal.relates_to_file_size,

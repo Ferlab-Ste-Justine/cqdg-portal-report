@@ -33,13 +33,14 @@ const fileManifestStats = () => async (req: Request, res: Response): Promise<voi
 
         const configGlobal = getConfig().global;
         const rawFiles = await getFilesFromSqon(es, sqon, userId, accessToken, configGlobal.fileManifestWantedFields);
-        const files = dedupeByField(rawFiles, configGlobal.file_hash, configGlobal.data_type);
+        const files = dedupeByField(rawFiles, configGlobal.stable_file_id, configGlobal.data_type);
 
         const newFiles = withFamily
             ? await getFamilyIds(
-                es,
-                files?.map(f => f[configGlobal.file_id]),
-            )
+                  es,
+                  files?.map(f => f[configGlobal.stable_file_id]),
+                  configGlobal.stable_file_id,
+              )
             : files;
 
         /** Join files by data_type */

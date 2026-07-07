@@ -5,7 +5,7 @@ const config: SheetConfig = {
     sheetName: 'Files',
     root: 'file',
     columns: [
-        { field: 'file_id', header: 'File ID' },
+        { field: 'stable_file_id', header: 'File ID' },
         { field: 'file_name', header: 'File Name' },
         { field: 'file_size', header: 'File Size', transform: value => formatFileSize(value, { output: 'string' }) },
         { field: 'file_hash', header: 'Hash' },
@@ -24,7 +24,7 @@ const config: SheetConfig = {
         { field: 'biospecimens.submitter_biospecimen_id', header: 'External Biospecimen ID' },
         { field: 'sequencing_experiment.bio_informatic_analysis', header: 'Analysis ID' },
     ],
-    sort: [{ file_id: { order: 'asc' } }],
+    sort: [{ stable_file_id: { order: 'asc' } }],
 };
 
 export default config;
