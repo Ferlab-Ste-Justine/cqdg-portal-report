@@ -12,7 +12,11 @@ const config: SheetConfig = {
         { field: 'data_category', header: 'Data Category' },
         { field: 'data_type', header: 'Data Type' },
         { field: 'file_format', header: 'File Format' },
-        { field: 'sequencing_experiment.experimental_strategy', header: 'Experimental Strategy' },
+        {
+            field: 'sequencing_experiment.experimental_strategies',
+            header: 'Experimental Strategy',
+            transform: (value: string[] | string) => (Array.isArray(value) ? value.join(', ') : value),
+        },
         { field: 'study.name', header: 'Study Name' },
         { field: 'participants.participant_id', header: 'Participant ID' },
         { field: 'biospecimens.sample_id', header: 'Sample ID' },
