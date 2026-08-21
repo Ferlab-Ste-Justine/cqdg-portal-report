@@ -208,6 +208,26 @@ describe('POST /reports/file-manifest', () => {
         expect(res.text).to.not.include('FI2');
     });
 
+    it('fills the Experimental Strategy column from the experimental_strategies array', async () => {
+        const files = [
+            makeFileSource({ stable_file_id: 'FH1' }),
+            makeFileSource({
+                stable_file_id: 'FH2',
+                sequencing_experiment: { experimental_strategies: ['WGS', 'WXS'] },
+            }),
+        ];
+
+        const res = await runManifestRequest(files);
+        expect(res.status).to.equal(200);
+
+        const lines = res.text.trim().split('\n');
+        const strategyIndex = lines[0].split('\t').indexOf('Experimental Strategy');
+        expect(strategyIndex).to.be.greaterThan(-1);
+
+        const strategyColumn = lines.slice(1).map(l => l.split('\t')[strategyIndex]);
+        expect(strategyColumn).to.deep.equal(['WGS', 'WGS, WXS']);
+    });
+
     it('dedupes rows that share a stable_file_id (same physical file, different sample-scoped file_id)', async () => {
         const files = [
             makeFileSource({ file_id: 'FI1', stable_file_id: 'FH1', biospecimens: [{ sample_id: 'S1' }] }),
