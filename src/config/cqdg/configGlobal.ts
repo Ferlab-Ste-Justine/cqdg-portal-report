@@ -32,7 +32,7 @@ const configGlobal = {
         'file_size',
         'participants.participant_id',
     ],
-    contact: 'contact',
+    access_authority: 'access_authority',
     value: 'value',
     fileRequestGetFilesInfoSource: [
         'file_id',
@@ -46,7 +46,7 @@ const configGlobal = {
         'file_format',
         'study.data_access_codes.access_limitations',
         'study.data_access_codes.access_requirements',
-        'study.contact.value',
+        'study.access_authority.value',
     ],
     age_categories: [
         { key: 'A-antenatal', label: 'Antenatal', tooltip: 'Before birth' },
