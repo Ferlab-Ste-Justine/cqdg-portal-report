@@ -48,8 +48,8 @@ const getFilesInfos = async (es: Client, fileIds: string[]): Promise<IFileInfos[
                   .map(v => v)
                   .join(', ')
             : [],
-        access_authority: file[configGlobal.study][configGlobal.contact]
-            ? file[configGlobal.study][configGlobal.contact][configGlobal.value]
+        access_authority: file[configGlobal.study][configGlobal.access_authority]
+            ? file[configGlobal.study][configGlobal.access_authority][configGlobal.value]
             : [],
     }));
     return filesInfos;
