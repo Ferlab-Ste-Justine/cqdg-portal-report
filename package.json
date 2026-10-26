@@ -24,6 +24,9 @@
     "url": "https://github.com/kids-first/kf-download-data/issues"
   },
   "homepage": "https://github.com/kids-first/kf-download-data#readme",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "devDependencies": {
     "@commitlint/cli": "^12.1.1",
     "@commitlint/config-conventional": "^12.1.1",
